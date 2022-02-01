@@ -21,11 +21,17 @@ namespace SITConnect
         byte[] IV;
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (Session["LoggedIn"] != null)
+            {
 
+            }
+            else {
+                Response.Redirect("Login.aspx", false);
+            }
         }
 
         protected void Login(object sender, EventArgs e) { 
-            if()
+           //todo login from week 4
         }
 
         protected void Logout(Object sender, EventArgs e) {

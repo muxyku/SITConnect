@@ -102,7 +102,6 @@ namespace SITConnect
         
 
             //Hashing and salting
-            //string pwd = get value from your Textbox
             string pwd = tb_userPass.Text.ToString().Trim();
             //Generate random "salt"
             RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
