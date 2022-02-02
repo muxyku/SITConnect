@@ -10,6 +10,7 @@
 <body>
     <h1>SIT Registration</h1>
     <form id="form1" runat="server">
+       
         <div>
             <table class="auto-style1">
                 <tr>

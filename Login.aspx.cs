@@ -21,24 +21,9 @@ namespace SITConnect
         byte[] IV;
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (Session["LoggedIn"] != null)
-            {
-
-            }
-            else {
-                Response.Redirect("Login.aspx", false);
-            }
+            
         }
 
-        protected void Login(object sender, EventArgs e) { 
-           //todo login from week 4
-        }
-
-        protected void Logout(Object sender, EventArgs e) {
-            Session.Clear();
-            Session.Abandon();
-            Session.RemoveAll();
-        }
 
         protected void btn_submit_Click(object sender, EventArgs e)
         {
@@ -56,13 +41,12 @@ namespace SITConnect
                     string userHash = Convert.ToBase64String(hashWithSalt);
                     if (userHash.Equals(dbHash))
                     {
-                        Response.Redirect("AccountPage.cshtml", false);
-                    }
-
-                    else
-                    {
-                        
-                        Response.Redirect("");
+                        Session["LoggedIn"] = tb_userEmail.Text.Trim();
+                        string guid = Guid.NewGuid().ToString();
+                        Session["AuthToken"] = guid;
+                        Response.Cookies.Add(new HttpCookie("AuthToken", guid));
+                        //add session here
+                        Response.Redirect("AccountPage.aspx", false);
                     }
                 }
             }
