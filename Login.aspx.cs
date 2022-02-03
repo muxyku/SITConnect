@@ -49,6 +49,10 @@ namespace SITConnect
                         Response.Redirect("AccountPage.aspx", false);
                     }
                 }
+                else
+                {
+                    errorText.Text = "User email or password is incorrect! Please try again";
+                }
             }
             catch (Exception ex)
             {

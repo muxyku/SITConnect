@@ -9,7 +9,7 @@
 <body>
     <form id="form1" runat="server">
         
-        <asp:Label ID="errorText" runat="server"/>
+        <asp:Label ID="errorText" runat="server" style="color: red;"/>
         <div>
             User Email<asp:TextBox ID="tb_userEmail" runat="server"></asp:TextBox>
         </div>

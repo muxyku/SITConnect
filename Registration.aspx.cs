@@ -26,7 +26,7 @@ namespace SITConnect
 
         }
 
-        private int checkPassword(string password)
+       /* private int checkPassword(string password)
         {
             int score = 0;
 
@@ -58,20 +58,15 @@ namespace SITConnect
                 score++;
             }
 
-            if (Regex.IsMatch(password, "[^A-Za-z0-9]"))
-            {
-                score++;
-            }
-
 
             return score;
-        }
+        }*/
 
         protected void btn_Submit_Click(object sender, EventArgs e)
         {
             //Password validation
-            int scores = checkPassword(tb_userPass.Text);
-            string status = "";
+            //int scores = checkPassword(tb_userPass.Text);
+            /*string status = "";
             switch (scores)
             {
                 case 1:
@@ -93,12 +88,12 @@ namespace SITConnect
                     break;
             }
             lbl_pwdchecker.Text = "Status : " + status;
-            if (scores != 6)
+            if (scores != 5)
             {
                 lbl_pwdchecker.ForeColor = Color.Red;
                 return;
             }
-            lbl_pwdchecker.ForeColor = Color.Green;
+            lbl_pwdchecker.ForeColor = Color.Green;*/
         
 
             //Hashing and salting
@@ -130,24 +125,24 @@ namespace SITConnect
             {
                 using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
                 {
-                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@FirstName, @LastName, @CreditNum, @CreditDate, @CreditCVV, @Email, @Password, @PasswordHash, @PasswordSalt, @DateofBirth, @Photo)"))
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@FirstName, @LastName, @CreditNum, @CreditDate, @CreditCVV, @Email, @Password, @PasswordHash, @PasswordSalt, @DateofBirth, @Photo, @IV, @Key)"))
                     {
                         using (SqlDataAdapter sda = new SqlDataAdapter())
                         {
                             cmd.CommandType = CommandType.Text;
                             cmd.Parameters.AddWithValue("@FirstName", tb_userFn.Text.Trim());
                             cmd.Parameters.AddWithValue("@LastName", tb_userLn.Text.Trim());
-                            cmd.Parameters.AddWithValue("@CreditNum", tb_userCreditNum.Text);
-                            cmd.Parameters.AddWithValue("@CreditDate", tb_userCreditDate.Text);
-                            cmd.Parameters.AddWithValue("@CreditCVV", tb_userCreditCVV.Text);
+                            cmd.Parameters.AddWithValue("@CreditNum", encryptData(tb_userCreditNum.Text));
+                            cmd.Parameters.AddWithValue("@CreditDate", encryptData(tb_userCreditDate.Text));
+                            cmd.Parameters.AddWithValue("@CreditCVV", encryptData(tb_userCreditCVV.Text));
                             cmd.Parameters.AddWithValue("@Email", tb_userEmail.Text);
-
-                            //cmd.Parameters.AddWithValue("@Nric", encryptData(tb_nric.Text.Trim()));
                             cmd.Parameters.AddWithValue("@Password", tb_userPass.Text.Trim());
                             cmd.Parameters.AddWithValue("@PasswordHash", finalHash);
                             cmd.Parameters.AddWithValue("@PasswordSalt", salt);
                             cmd.Parameters.AddWithValue("@DateofBirth", tb_userDob.Text.Trim());
                             cmd.Parameters.AddWithValue("@Photo", photo.Text);
+                            cmd.Parameters.AddWithValue("@IV", Convert.ToBase64String(IV));
+                            cmd.Parameters.AddWithValue("@Key", Convert.ToBase64String(Key));
             
                             cmd.Connection = con;
                             con.Open();
