@@ -83,8 +83,7 @@ namespace SITConnect
                             dob.Text = reader["DateofBirth"].ToString();
                         }
 
-                    }
-                    
+                    } 
 
                 }
             }

@@ -5,6 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title></title>
+   <script src="https://www.google.com/recaptcha/api.js?render=6LdnEVYeAAAAAPJgTLcsMRElnpR34O8dCL8eg_9l"></script>
 </head>
 <body>
     <form id="form1" runat="server">
@@ -16,7 +17,16 @@
         <p>
             Password<asp:TextBox ID="tb_userPass" runat="server"></asp:TextBox>
         </p>
+        <asp:Label runat="server" ID="gScore"></asp:Label>
         <asp:Button ID="btn_submit" runat="server" Text="Submit" OnClick="btn_submit_Click" />
+        <input type="hidden" id="g-recaptcha-response" name="g-recaptcha-response"/>
     </form>
 </body>
+    <script>
+        grecaptcha.ready(function () {
+            grecaptcha.execute('6LdnEVYeAAAAAPJgTLcsMRElnpR34O8dCL8eg_9l', { action: 'Login' }).then(function (token) {
+                document.getElementById("g-recaptcha-response").value = token;
+            });
+        });
+    </script>
 </html>

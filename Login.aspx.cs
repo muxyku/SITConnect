@@ -8,11 +8,17 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Data;
 using System.Data.SqlClient;
+using System.Net;
+using System.IO;
+using System.Web.Script.Serialization;
+using System.Web.Services;
 
 namespace SITConnect
 {
     public partial class Login : System.Web.UI.Page
     {
+        public string success { get; set; }
+        public List<string> ErrorMessage { get; set; }
         string SITConnectDBConnectionString =
         System.Configuration.ConfigurationManager.ConnectionStrings["SITConnectDBConnection"].ConnectionString;
         static string finalHash;
@@ -27,38 +33,41 @@ namespace SITConnect
 
         protected void btn_submit_Click(object sender, EventArgs e)
         {
-            string pwd = tb_userPass.Text.ToString().Trim();
-            string userEmail = tb_userEmail.Text.ToString().Trim();
-            SHA512Managed hashing = new SHA512Managed();
-            string dbHash = getDBHash(userEmail);
-            string dbSalt = getDBSalt(userEmail);
-            try
+            if (validateCaptcha()) 
             {
-                if (dbSalt != null && dbSalt.Length > 0 && dbHash != null && dbHash.Length > 0)
+                string pwd = tb_userPass.Text.ToString().Trim();
+                string userEmail = tb_userEmail.Text.ToString().Trim();
+                SHA512Managed hashing = new SHA512Managed();
+                string dbHash = getDBHash(userEmail);
+                string dbSalt = getDBSalt(userEmail);
+                try
                 {
-                    string pwdWithSalt = pwd + dbSalt;
-                    byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
-                    string userHash = Convert.ToBase64String(hashWithSalt);
-                    if (userHash.Equals(dbHash))
+                    if (dbSalt != null && dbSalt.Length > 0 && dbHash != null && dbHash.Length > 0)
                     {
-                        Session["LoggedIn"] = tb_userEmail.Text.Trim();
-                        string guid = Guid.NewGuid().ToString();
-                        Session["AuthToken"] = guid;
-                        Response.Cookies.Add(new HttpCookie("AuthToken", guid));
-                        //add session here
-                        Response.Redirect("AccountPage.aspx", false);
+                        string pwdWithSalt = pwd + dbSalt;
+                        byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
+                        string userHash = Convert.ToBase64String(hashWithSalt);
+                        if (userHash.Equals(dbHash))
+                        {
+                            Session["LoggedIn"] = tb_userEmail.Text.Trim();
+                            string guid = Guid.NewGuid().ToString();
+                            Session["AuthToken"] = guid;
+                            Response.Cookies.Add(new HttpCookie("AuthToken", guid));
+                            Response.Redirect("AccountPage.aspx", false);
+                        }
+                    }
+                    else
+                    {
+                        errorText.Text = "User email or password is incorrect! Please try again";
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    errorText.Text = "User email or password is incorrect! Please try again";
+                    throw new Exception(ex.ToString());
                 }
+                finally { }
             }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-            finally { }
+           
 
         }
 
@@ -127,6 +136,35 @@ namespace SITConnect
             }
             finally { connection.Close(); }
             return s;
+        }
+
+        public bool validateCaptcha() {
+            bool result = true;
+
+            string captchaResponse = Request.Form["g-recaptcha-response"];
+
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://www.google.com/recaptcha/api/siteverify?secret=6LdnEVYeAAAAABfWohDTrWO3uJnT2tPqoPbtG2J_ &response=" + captchaResponse);
+
+            try
+            {
+                using (WebResponse wResponse = req.GetResponse())
+                {
+                    using (StreamReader readStream = new StreamReader(wResponse.GetResponseStream()))
+                    {
+                        string jsonResponse = readStream.ReadToEnd();
+                        gScore.Text = jsonResponse;
+                        JavaScriptSerializer js = new JavaScriptSerializer();
+                        Login jsonObject = js.Deserialize<Login>(jsonResponse);
+
+                        result = Convert.ToBoolean(jsonObject.success);
+                    }
+                }
+                return result;
+            }
+            catch (WebException ex)
+            {
+                throw ex;
+            }
         }
     }
 }

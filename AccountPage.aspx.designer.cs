@@ -33,33 +33,6 @@ namespace SITConnect
         protected global::System.Web.UI.WebControls.Label userName;
 
         /// <summary>
-        /// creditNum control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label creditNum;
-
-        /// <summary>
-        /// creditDate control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label creditDate;
-
-        /// <summary>
-        /// creditCVV control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label creditCVV;
-
-        /// <summary>
         /// email control.
         /// </summary>
         /// <remarks>
