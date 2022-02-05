@@ -24,5 +24,7 @@
             <asp:Button id="btnLogout" runat="Server" OnClick="Logout" Text="Logout"/>
     </div>
     </form>
+    <a href="ChangePassword.aspx">Change password</a>
+
 </body>
 </html>
