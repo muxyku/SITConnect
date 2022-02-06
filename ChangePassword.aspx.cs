@@ -15,7 +15,7 @@ namespace SITConnect
 {
     public partial class ChangePassword : System.Web.UI.Page
     {
-       /* string SITConnectDBConnectionString =
+        /*string SITConnectDBConnectionString =
          System.Configuration.ConfigurationManager.ConnectionStrings["SITConnectDBConnection"].ConnectionString;
         static string finalHash;
         static string salt;
@@ -66,12 +66,15 @@ namespace SITConnect
                             rowsAffected = cmd.ExecuteNonQuery();
                             con.Close();
                             //updatePassHashSalt(Session["LoggedIn"].ToString());
+
+
                         }
                     }
                     if (rowsAffected > 0)
                     {
                         lblMessage.ForeColor = Color.Green;
                         lblMessage.Text = "Password has been changed successfully.";
+
                     }
                     else
                     {

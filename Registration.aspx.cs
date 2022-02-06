@@ -21,6 +21,7 @@ namespace SITConnect
         static string salt;
         byte[] Key;
         byte[] IV;
+        int loginattempt = 0;
         protected void Page_Load(object sender, EventArgs e)
         {
 
@@ -125,7 +126,7 @@ namespace SITConnect
             {
                 using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
                 {
-                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@FirstName, @LastName, @CreditNum, @CreditDate, @CreditCVV, @Email, @Password, @PasswordHash, @PasswordSalt, @DateofBirth, @Photo, @IV, @Key)"))
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@FirstName, @LastName, @CreditNum, @CreditDate, @CreditCVV, @Email, @Password, @PasswordHash, @PasswordSalt, @DateofBirth, @Photo, @IV, @Key, @LoginAttempts)"))
                     {
                         using (SqlDataAdapter sda = new SqlDataAdapter())
                         {
@@ -143,7 +144,8 @@ namespace SITConnect
                             cmd.Parameters.AddWithValue("@Photo", photo.Text);
                             cmd.Parameters.AddWithValue("@IV", Convert.ToBase64String(IV));
                             cmd.Parameters.AddWithValue("@Key", Convert.ToBase64String(Key));
-            
+                            cmd.Parameters.AddWithValue("@LoginAttempts", loginattempt);
+
                             cmd.Connection = con;
                             con.Open();
                             cmd.ExecuteNonQuery();

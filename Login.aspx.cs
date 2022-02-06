@@ -21,10 +21,8 @@ namespace SITConnect
         public List<string> ErrorMessage { get; set; }
         string SITConnectDBConnectionString =
         System.Configuration.ConfigurationManager.ConnectionStrings["SITConnectDBConnection"].ConnectionString;
-        static string finalHash;
-        static string salt;
-        byte[] Key;
-        byte[] IV;
+        int LoginAttempts = 0;
+      
         protected void Page_Load(object sender, EventArgs e)
         {
             
@@ -40,6 +38,7 @@ namespace SITConnect
                 SHA512Managed hashing = new SHA512Managed();
                 string dbHash = getDBHash(userEmail);
                 string dbSalt = getDBSalt(userEmail);
+                getLoginAttempt(userEmail);
                 try
                 {
                     if (dbSalt != null && dbSalt.Length > 0 && dbHash != null && dbHash.Length > 0)
@@ -54,11 +53,30 @@ namespace SITConnect
                             Session["AuthToken"] = guid;
                             Response.Cookies.Add(new HttpCookie("AuthToken", guid));
                             Response.Redirect("AccountPage.aspx", false);
+                            setLoginAttempt(userEmail);
+                        }
+                        else {
+                            LoginAttempts ++;
+                            addLA.Text = LoginAttempts.ToString();
+                            updateLoginAttempt(userEmail, LoginAttempts);
+
+                            if (LoginAttempts == 1)
+                            {
+                                errorText.Text = "User email or password is incorrect! Please try again! 2 attempts remaining.";
+                            }
+                            else if (LoginAttempts == 2)
+                            {
+                                errorText.Text = "User email or password is incorrect! Please try again! 1 attempts remaining.";
+                            }
+                            else if (LoginAttempts == 3)
+                            {
+                                errorText.Text = "Too many tries! Your account has been locked!";
+                            }
                         }
                     }
                     else
                     {
-                        errorText.Text = "User email or password is incorrect! Please try again";
+
                     }
                 }
                 catch (Exception ex)
@@ -164,6 +182,146 @@ namespace SITConnect
             catch (WebException ex)
             {
                 throw ex;
+            }
+        }
+
+        /*protected void updateLoginAttempt(string userid)
+        {
+            using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
+            {
+                string query = "UPDATE [Account] SET [LoginAttempts] = @LoginAttempt WHERE Email=@USERID";
+
+                using (SqlCommand cmd = new SqlCommand(query))
+                {
+                    using (SqlDataAdapter sda = new SqlDataAdapter())
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.AddWithValue("@LoginAttempt", LoginAttempts);
+                        cmd.Parameters.AddWithValue("@USERID", userid);
+
+                        cmd.Connection = con;
+                        con.Open();
+                        cmd.ExecuteNonQuery();
+                        con.Close();
+                    }
+                }
+            }
+        }*/
+
+        protected void updateLoginAttempt(string userid, int loginAttempt)
+        {
+            using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
+            {
+                string query = "UPDATE [Account] SET [LoginAttempts] = @LoginAttempts WHERE [Email]= @USERID";
+
+                using (SqlCommand cmd = new SqlCommand(query))
+                {
+                    using (SqlDataAdapter sda = new SqlDataAdapter())
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.AddWithValue("@LoginAttempts", loginAttempt);
+                        cmd.Parameters.AddWithValue("@USERID", userid);
+
+                        cmd.Connection = con;
+                        con.Open();
+                        cmd.ExecuteNonQuery();
+                        con.Close();
+                    }
+                }
+            }
+        }
+
+        /*protected string updateLoginAttempt(string userid, int loginAttempt)
+        {
+            string h = null;
+            try
+            {
+                string query = "UPDATE [Account] SET [LoginAttempts] = @LoginAttempts WHERE [Email]= @USERID";
+                string SITConnectDBConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["SITConnectDBConnection"].ConnectionString;
+
+                using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand(query))
+                    {
+                        using (SqlDataAdapter sda = new SqlDataAdapter())
+                        {
+                            cmd.Parameters.AddWithValue("@LoginAttempts", loginAttempt);
+                            cmd.Parameters.AddWithValue("@USERID", userid);
+
+                            cmd.Connection = con;
+                            con.Open();
+                            con.Close();
+
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            finally { }
+            return h;
+        }*/
+
+
+        protected string getLoginAttempt(string userid)
+        {
+            string h = null;
+            SqlConnection connection = new SqlConnection(SITConnectDBConnectionString);
+            string sql = "select LoginAttempts FROM Account WHERE Email=@USERID";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@USERID", userid);
+            try
+            {
+                connection.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+
+                    while (reader.Read())
+                    {
+                        if (reader["LoginAttempts"] != DBNull.Value)
+                        {
+                            LoginAttempts = (int)reader["LoginAttempts"];
+                            LA.Text = reader["LoginAttempts"].ToString();
+
+                        }
+                       
+
+                    }
+
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            finally { connection.Close(); }
+            return h;
+        }
+
+        protected void setLoginAttempt(string userid)
+        {
+            using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
+            {
+                string query = "UPDATE [Account] SET [LoginAttempts] = @LoginAttempt WHERE [Email] = @USERID";
+
+                using (SqlCommand cmd = new SqlCommand(query))
+                {
+                    using (SqlDataAdapter sda = new SqlDataAdapter())
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.AddWithValue("@LoginAttempt", 0);
+                        cmd.Parameters.AddWithValue("@USERID", userid);
+
+                        cmd.Connection = con;
+                        con.Open();
+                        cmd.ExecuteNonQuery();
+                        con.Close();
+                    }
+                }
             }
         }
     }

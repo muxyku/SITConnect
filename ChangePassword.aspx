@@ -14,7 +14,7 @@
                 NewPasswordRegularExpression="^[\s\S]{12,}$"
                 NewPasswordRegularExpressionErrorMessage="Password must be of minimum 12 characters."
                 CancelDestinationPageUrl = "~/AccountPage.aspx">
-</asp:ChangePassword>
+            </asp:ChangePassword>
 <br />
 <asp:Label ID="lblMessage" runat="server" />
         </div>
