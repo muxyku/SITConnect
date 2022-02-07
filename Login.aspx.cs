@@ -22,7 +22,10 @@ namespace SITConnect
         string SITConnectDBConnectionString =
         System.Configuration.ConfigurationManager.ConnectionStrings["SITConnectDBConnection"].ConnectionString;
         int LoginAttempts = 0;
-      
+        DateTime lockoutTimenow = DateTime.Now;
+        DateTime localLockTime;
+
+
         protected void Page_Load(object sender, EventArgs e)
         {
             
@@ -39,6 +42,13 @@ namespace SITConnect
                 string dbHash = getDBHash(userEmail);
                 string dbSalt = getDBSalt(userEmail);
                 getLoginAttempt(userEmail);
+                getLockoutTime(userEmail);
+                
+                //time
+                TimeSpan ts = lockoutTimenow.Subtract(localLockTime);
+                Int32 minutesLocked = Convert.ToInt32(ts.TotalMinutes);
+                Int32 pendingMinutes = 10 - minutesLocked;
+
                 try
                 {
                     if (dbSalt != null && dbSalt.Length > 0 && dbHash != null && dbHash.Length > 0)
@@ -46,7 +56,8 @@ namespace SITConnect
                         string pwdWithSalt = pwd + dbSalt;
                         byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
                         string userHash = Convert.ToBase64String(hashWithSalt);
-                        if (userHash.Equals(dbHash))
+
+                        if (userHash.Equals(dbHash) && pendingMinutes <=0)
                         {
                             Session["LoggedIn"] = tb_userEmail.Text.Trim();
                             string guid = Guid.NewGuid().ToString();
@@ -54,9 +65,11 @@ namespace SITConnect
                             Response.Cookies.Add(new HttpCookie("AuthToken", guid));
                             Response.Redirect("AccountPage.aspx", false);
                             setLoginAttempt(userEmail);
+                            resetLockoutTime(userEmail);
                         }
-                        else {
-                            LoginAttempts ++;
+                        else
+                        {
+                            LoginAttempts++;
                             addLA.Text = LoginAttempts.ToString();
                             updateLoginAttempt(userEmail, LoginAttempts);
 
@@ -68,12 +81,16 @@ namespace SITConnect
                             {
                                 errorText.Text = "User email or password is incorrect! Please try again! 1 attempts remaining.";
                             }
-                            else if (LoginAttempts == 3)
+                            else if (LoginAttempts >= 3)
                             {
-                                errorText.Text = "Too many tries! Your account has been locked!";
+                                setDBLockoutTime(userEmail, lockoutTimenow);
+                                
+                                errorText.Text = "Too many tries! Your account has been locked! Try again later.";
                             }
                         }
-                    }
+
+
+                        }
                     else
                     {
 
@@ -185,18 +202,19 @@ namespace SITConnect
             }
         }
 
-        /*protected void updateLoginAttempt(string userid)
+
+        protected void setDBLockoutTime(string userid, DateTime lockoutTime)
         {
             using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
             {
-                string query = "UPDATE [Account] SET [LoginAttempts] = @LoginAttempt WHERE Email=@USERID";
+                string query = "UPDATE [Account] SET [LockoutTime] = @LockoutTime WHERE [Email]= @USERID";
 
                 using (SqlCommand cmd = new SqlCommand(query))
                 {
                     using (SqlDataAdapter sda = new SqlDataAdapter())
                     {
                         cmd.CommandType = CommandType.Text;
-                        cmd.Parameters.AddWithValue("@LoginAttempt", LoginAttempts);
+                        cmd.Parameters.AddWithValue("@LockoutTime", lockoutTime);
                         cmd.Parameters.AddWithValue("@USERID", userid);
 
                         cmd.Connection = con;
@@ -206,7 +224,89 @@ namespace SITConnect
                     }
                 }
             }
+        }
+        protected string getLockoutTime(string userid)
+        {
+            string h = null;
+            SqlConnection connection = new SqlConnection(SITConnectDBConnectionString);
+            string sql = "select LockoutTime FROM Account WHERE Email=@USERID";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@USERID", userid);
+            try
+            {
+                connection.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+
+                    while (reader.Read())
+                    {
+                        if (reader["LockoutTime"] != DBNull.Value)
+                        {
+                            localLockTime = (DateTime)reader["LockoutTime"];
+                           
+
+                        }
+
+
+                    }
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            finally { connection.Close(); }
+            return h;
+        }
+
+
+        /*protected string getLockoutTime(string userid)
+        {
+            string h = null;
+            SqlConnection connection = new SqlConnection(SITConnectDBConnectionString);
+            string sql = "select LockoutTime FROM Account WHERE Email=@USERID";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@USERID", userid);
+            try
+            {
+                connection.Open();
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    localLockTime = (DateTime)reader["LockoutTime"];
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            finally { connection.Close(); }
+            return h;
         }*/
+
+        protected void resetLockoutTime(string userid)
+        {
+            using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
+            {
+                string query = "UPDATE [Account] SET [LockoutTime] = @LockoutTime WHERE [Email]= @USERID";
+
+                using (SqlCommand cmd = new SqlCommand(query))
+                {
+                    using (SqlDataAdapter sda = new SqlDataAdapter())
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.AddWithValue("@LockoutTime", "2022 - 12 - 31 23:59:59");
+                        cmd.Parameters.AddWithValue("@USERID", userid);
+
+                        cmd.Connection = con;
+                        con.Open();
+                        cmd.ExecuteNonQuery();
+                        con.Close();
+                    }
+                }
+            }
+        }
 
         protected void updateLoginAttempt(string userid, int loginAttempt)
         {
@@ -230,40 +330,6 @@ namespace SITConnect
                 }
             }
         }
-
-        /*protected string updateLoginAttempt(string userid, int loginAttempt)
-        {
-            string h = null;
-            try
-            {
-                string query = "UPDATE [Account] SET [LoginAttempts] = @LoginAttempts WHERE [Email]= @USERID";
-                string SITConnectDBConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["SITConnectDBConnection"].ConnectionString;
-
-                using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
-                {
-                    using (SqlCommand cmd = new SqlCommand(query))
-                    {
-                        using (SqlDataAdapter sda = new SqlDataAdapter())
-                        {
-                            cmd.Parameters.AddWithValue("@LoginAttempts", loginAttempt);
-                            cmd.Parameters.AddWithValue("@USERID", userid);
-
-                            cmd.Connection = con;
-                            con.Open();
-                            con.Close();
-
-                        }
-                    }
-
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-            finally { }
-            return h;
-        }*/
 
 
         protected string getLoginAttempt(string userid)
