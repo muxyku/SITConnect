@@ -90,6 +90,7 @@
   <ItemGroup>
     <Content Include="403.aspx" />
     <Content Include="404.aspx" />
+    <Content Include="500.aspx" />
     <Content Include="AccountPage.aspx" />
     <Content Include="App_Data\SITConnectDB.mdf" />
     <Content Include="App_Data\SITConnectDB_log.ldf">
@@ -114,6 +115,13 @@
     </Compile>
     <Compile Include="404.aspx.designer.cs">
       <DependentUpon>404.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="500.aspx.cs">
+      <DependentUpon>500.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="500.aspx.designer.cs">
+      <DependentUpon>500.aspx</DependentUpon>
     </Compile>
     <Compile Include="AccountPage.aspx.cs">
       <DependentUpon>AccountPage.aspx</DependentUpon>

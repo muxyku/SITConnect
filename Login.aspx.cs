@@ -56,8 +56,8 @@ namespace SITConnect
                         string pwdWithSalt = pwd + dbSalt;
                         byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
                         string userHash = Convert.ToBase64String(hashWithSalt);
-
-                        if (userHash.Equals(dbHash) && pendingMinutes <=0)
+                        
+                        if (userHash.Equals(dbHash) && pendingMinutes <= 0)
                         {
                             Session["LoggedIn"] = tb_userEmail.Text.Trim();
                             string guid = Guid.NewGuid().ToString();
@@ -66,6 +66,7 @@ namespace SITConnect
                             Response.Redirect("AccountPage.aspx", false);
                             setLoginAttempt(userEmail);
                             resetLockoutTime(userEmail);
+                            LoginLog();
                         }
                         else
                         {
@@ -81,12 +82,17 @@ namespace SITConnect
                             {
                                 errorText.Text = "User email or password is incorrect! Please try again! 1 attempts remaining.";
                             }
-                            else if (LoginAttempts >= 3)
-                            {
-                                setDBLockoutTime(userEmail, lockoutTimenow);
-                                
-                                errorText.Text = "Too many tries! Your account has been locked! Try again later.";
+                            else if (pendingMinutes > 0) { 
+                                errorText.Text = " Your account has been locked! Try again later.";
+
                             }
+                            else if (LoginAttempts == 3)
+                            {
+                                failedLoginLog();
+                                errorText.Text = "Too many tries! Your account has been locked! Try again later.";
+                                setDBLockoutTime(userEmail, lockoutTimenow);
+                            }
+                            
                         }
 
 
@@ -296,7 +302,7 @@ namespace SITConnect
                     using (SqlDataAdapter sda = new SqlDataAdapter())
                     {
                         cmd.CommandType = CommandType.Text;
-                        cmd.Parameters.AddWithValue("@LockoutTime", "2022 - 12 - 31 23:59:59");
+                        cmd.Parameters.AddWithValue("@LockoutTime", "2001 - 01 - 21 00:00:00");
                         cmd.Parameters.AddWithValue("@USERID", userid);
 
                         cmd.Connection = con;
@@ -388,6 +394,68 @@ namespace SITConnect
                         con.Close();
                     }
                 }
+            }
+        }
+
+        protected void LoginLog()
+        {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO AuditLogs VALUES(@DateTimeLog, @UserLog, @Action)"))
+                    {
+                        using (SqlDataAdapter sda = new SqlDataAdapter())
+                        {
+                            cmd.CommandType = CommandType.Text;
+                            cmd.Parameters.AddWithValue("@DateTimeLog", DateTime.Now);
+                            cmd.Parameters.AddWithValue("@UserLog", tb_userEmail.Text.Trim());
+                            cmd.Parameters.AddWithValue("@Action", "Successfully logged into account".ToString());
+
+
+                            cmd.Connection = con;
+                            con.Open();
+                            cmd.ExecuteNonQuery();
+                            con.Close();
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+        }
+
+        protected void failedLoginLog()
+        {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO AuditLogs(DateTimeLog,UserLog,Action) VALUES(@DateTimeLog, @UserLog, @Action)"))
+                    {
+                        using (SqlDataAdapter sda = new SqlDataAdapter())
+                        {
+                            cmd.CommandType = CommandType.Text;
+                            cmd.Parameters.AddWithValue("@DateTimeLog", DateTime.Now);
+                            cmd.Parameters.AddWithValue("@UserLog", tb_userEmail.Text.Trim());
+                            cmd.Parameters.AddWithValue("@Action", "Failed to login and account has been locked for 10 minutes".ToString());
+
+
+                            cmd.Connection = con;
+                            con.Open();
+                            cmd.ExecuteNonQuery();
+                            con.Close();
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
             }
         }
     }

@@ -152,6 +152,7 @@ namespace SITConnect
                             con.Open();
                             cmd.ExecuteNonQuery();
                             con.Close();
+                            createAccountLog();
                         }
                     }
                 }
@@ -183,6 +184,37 @@ namespace SITConnect
             }
             finally { }
             return cipherText;
+        }
+
+        protected void createAccountLog()
+        {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand("INSERT AuditLogs VALUES(@DateTimeLog, @UserLog, @Action)"))
+                    {
+                        using (SqlDataAdapter sda = new SqlDataAdapter())
+                        {
+                            cmd.CommandType = CommandType.Text;
+                            cmd.Parameters.AddWithValue("@DateTimeLog", DateTime.Now );
+                            cmd.Parameters.AddWithValue("@UserLog", tb_userEmail.Text.Trim());
+                            cmd.Parameters.AddWithValue("@Action", "Registered for an account".ToString());
+                            
+
+                            cmd.Connection = con;
+                            con.Open();
+                            cmd.ExecuteNonQuery();
+                            con.Close();
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
         }
     }
 }

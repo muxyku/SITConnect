@@ -13,8 +13,13 @@ using System.Data;
 
 namespace SITConnect
 {
+
+
     public partial class ChangePassword : System.Web.UI.Page
     {
+
+        string SITConnectDBConnectionString =
+        System.Configuration.ConfigurationManager.ConnectionStrings["SITConnectDBConnection"].ConnectionString;
         /*string SITConnectDBConnectionString =
          System.Configuration.ConfigurationManager.ConnectionStrings["SITConnectDBConnection"].ConnectionString;
         static string finalHash;
@@ -72,6 +77,7 @@ namespace SITConnect
                     }
                     if (rowsAffected > 0)
                     {
+                        changePasswordLog();
                         lblMessage.ForeColor = Color.Green;
                         lblMessage.Text = "Password has been changed successfully.";
 
@@ -133,5 +139,36 @@ namespace SITConnect
                 }
             }
         }*/
+
+        protected void changePasswordLog()
+        {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO AuditLogs VALUES(@DateTime, @User, @Action)"))
+                    {
+                        using (SqlDataAdapter sda = new SqlDataAdapter())
+                        {
+                            cmd.CommandType = CommandType.Text;
+                            cmd.Parameters.AddWithValue("@DateTime", DateTime.Now);
+                            cmd.Parameters.AddWithValue("@User", Session["LoggedIn"].ToString());
+                            cmd.Parameters.AddWithValue("@Action", "Successfully changed password");
+
+
+                            cmd.Connection = con;
+                            con.Open();
+                            cmd.ExecuteNonQuery();
+                            con.Close();
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+        }
     }
 }

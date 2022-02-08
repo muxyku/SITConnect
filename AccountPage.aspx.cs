@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
@@ -93,6 +94,37 @@ namespace SITConnect
             }
             finally { connection.Close(); }
             return h;
+        }
+
+        protected void LoginOutLog()
+        {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO AuditLogs VALUES(@DateTime, @User, @Action)"))
+                    {
+                        using (SqlDataAdapter sda = new SqlDataAdapter())
+                        {
+                            cmd.CommandType = CommandType.Text;
+                            cmd.Parameters.AddWithValue("@DateTime", DateTime.Now);
+                            cmd.Parameters.AddWithValue("@User", Session["LoggedIn"].ToString());
+                            cmd.Parameters.AddWithValue("@Action", "Successfully logged out");
+
+
+                            cmd.Connection = con;
+                            con.Open();
+                            cmd.ExecuteNonQuery();
+                            con.Close();
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
         }
 
 
