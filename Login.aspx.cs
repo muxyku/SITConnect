@@ -25,12 +25,10 @@ namespace SITConnect
         DateTime lockoutTimenow = DateTime.Now;
         DateTime localLockTime;
 
-
         protected void Page_Load(object sender, EventArgs e)
         {
             
         }
-
 
         protected void btn_submit_Click(object sender, EventArgs e)
         {
@@ -44,7 +42,7 @@ namespace SITConnect
                 getLoginAttempt(userEmail);
                 getLockoutTime(userEmail);
                 
-                //time
+                //Time
                 TimeSpan ts = lockoutTimenow.Subtract(localLockTime);
                 Int32 minutesLocked = Convert.ToInt32(ts.TotalMinutes);
                 Int32 pendingMinutes = 10 - minutesLocked;
@@ -89,8 +87,8 @@ namespace SITConnect
                             else if (LoginAttempts == 3)
                             {
                                 failedLoginLog();
-                                errorText.Text = "Too many tries! Your account has been locked! Try again later.";
                                 setDBLockoutTime(userEmail, lockoutTimenow);
+                                errorText.Text = "Too many tries! Your account has been locked! Try again later.";  
                             }
                             
                         }

@@ -20,12 +20,11 @@ namespace SITConnect
 
         string SITConnectDBConnectionString =
         System.Configuration.ConfigurationManager.ConnectionStrings["SITConnectDBConnection"].ConnectionString;
-        /*string SITConnectDBConnectionString =
-         System.Configuration.ConfigurationManager.ConnectionStrings["SITConnectDBConnection"].ConnectionString;
+        
         static string finalHash;
         static string salt;
         byte[] Key;
-        byte[] IV;*/
+        byte[] IV;
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["LoggedIn"] != null && Session["AuthToken"] != null && Request.Cookies["AuthToken"] != null)
@@ -70,8 +69,6 @@ namespace SITConnect
                             con.Open();
                             rowsAffected = cmd.ExecuteNonQuery();
                             con.Close();
-                            //updatePassHashSalt(Session["LoggedIn"].ToString());
-
 
                         }
                     }
@@ -80,6 +77,7 @@ namespace SITConnect
                         changePasswordLog();
                         lblMessage.ForeColor = Color.Green;
                         lblMessage.Text = "Password has been changed successfully.";
+                        updatePassHashSalt(Session["LoggedIn"].ToString());
 
                     }
                     else
@@ -99,25 +97,22 @@ namespace SITConnect
         }
 
         //TRY UPDATING SALT AND HASH PASSWORD
-        /*protected void updatePassHashSalt(string userid)
+        protected void updatePassHashSalt(string userid)
         {
             using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
             {
-                string query = "UPDATE [Account] SET [PasswordHash] = @PasswordHash AND [PasswordSalt] = @PasswordSalt FROM Account WHERE Email = @USERID";
+                string query = "UPDATE [Account] SET [PasswordHash] = @PasswordHash, [PasswordSalt] = @PasswordSalt WHERE Email = @USERID";
 
                 using (SqlCommand cmd = new SqlCommand(query))
                 {
                     using (SqlDataAdapter sda = new SqlDataAdapter())
                     {
-                        cmd.CommandType = CommandType.Text;
-                        cmd.Parameters.AddWithValue("@PasswordHash", finalHash);
-                        cmd.Parameters.AddWithValue("@PasswordSalt", salt);
-
                         //Hashing and salting
-                        string pwd = ChangePassword1.ToString().Trim();
+                        string pwd = ChangePassword1.NewPassword.ToString();
                         //Generate random "salt"
                         RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
                         byte[] saltByte = new byte[8];
+
                         //Fills array of bytes with a cryptographically strong sequence of random values.
                         rng.GetBytes(saltByte);
                         salt = Convert.ToBase64String(saltByte);
@@ -126,10 +121,15 @@ namespace SITConnect
                         byte[] plainHash = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwd));
                         byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
                         finalHash = Convert.ToBase64String(hashWithSalt);
-                        RijndaelManaged cipher = new RijndaelManaged();
-                        cipher.GenerateKey();
-                        Key = cipher.Key;
-                        IV = cipher.IV;
+
+
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.AddWithValue("@PasswordHash", finalHash);
+                        cmd.Parameters.AddWithValue("@PasswordSalt", salt);
+                        cmd.Parameters.AddWithValue("@USERID", userid);
+
+                        
+                        
 
                         cmd.Connection = con;
                         con.Open();
@@ -138,7 +138,7 @@ namespace SITConnect
                     }
                 }
             }
-        }*/
+        }
 
         protected void changePasswordLog()
         {
@@ -169,6 +169,28 @@ namespace SITConnect
             {
                 throw new Exception(ex.ToString());
             }
+        }
+
+        public bool checkPasswordExists(string email)
+        {
+            SqlConnection connection = new SqlConnection(SITConnectDBConnectionString);
+            string sql = "select * FROM Account WHERE Email=@EMAIL";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@EMAIL", email);
+
+            connection.Open();
+            using (SqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    if (reader["Id"].ToString() != null)
+                    {
+                        return true;
+                    }
+                }
+            }
+            connection.Close();
+            return false;
         }
     }
 }

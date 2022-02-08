@@ -4,17 +4,57 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
-    <title></title>
+    <title>Registration</title>
    
     <style type="text/css">
         .auto-style1 {
             height: 29px;
         }
     </style>
+    
+    <!-- Client side password validation -->
+    <script>
+        function validate() {
+            var str = document.getElementById('<%=tb_userPass.ClientID %>').value;
+
+            //Check for minimum 12 characters
+            if (str.length < 12) {
+                document.getElementById("lbl_pwdchecker").innerHTML = "Password length must be at least 12 Characters";
+                document.getElementById("lbl_pwdchecker").style.color = "Red";
+                return ("too short");
+            }
+            //Check of contains numbers
+            else if (str.search(/[0-9]/) == -1) {
+                document.getElementById("lbl_pwdchecker").innerHTML = "Password requires at least 1 number";
+                document.getElementById("lbl_pwdchecker").style.color = "Red";
+                return ("no_number");
+            }
+            //Check if contains uppercase
+            else if (str.search(/[A-Z]/) == -1) {
+                document.getElementById("lbl_pwdchecker").innerHTML = "Password requires at least 1 upper case character";
+                document.getElementById("lbl_pwdchecker").style.color = "Red";
+                return ("no_uppercase");
+            }
+            //Check if contains lowercase
+            else if (str.search(/[a-z]/) == -1) {
+                document.getElementById("lbl_pwdchecker").innerHTML = "Password requires at least 1 lower case character";
+                document.getElementById("lbl_pwdchecker").style.color = "Red";
+                return ("no_lowercase");
+            }
+            //Check if contains special characters
+            else if (str.search(/[!@#$%^&*]/) == -1) {
+                document.getElementById("lbl_pwdchecker").innerHTML = "Password requires at least 1 special character";
+                document.getElementById("lbl_pwdchecker").style.color = "Red";
+                return ("no_special");
+            }
+            document.getElementById("lbl_pwdchecker").innerHTML = "Excellent!"
+            document.getElementById("lbl_pwdchecker").style.color = "Green";
+        }
+    </script>
    
 </head>
 <body>
-    <h1>SIT Registration</h1>
+    <h1>SIT Connect Registration</h1>
     <form id="form1" runat="server">
        
         <div>
@@ -62,9 +102,7 @@
                         <asp:RequiredFieldValidator ID="RequiredFieldValidator6" runat="server" ControlToValidate="tb_userEmail" ErrorMessage="Email is required" style="color:red;"></asp:RequiredFieldValidator>
                         
                     </td>
-                        
-                    
-                    
+
                 </tr>
                 <tr>
                     <td>

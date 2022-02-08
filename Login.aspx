@@ -9,7 +9,7 @@
 </head>
 <body>
     <form id="form1" runat="server">
-        
+        <h1>SIT Connect Login</h1>
         
         <div>
             User Email<asp:TextBox ID="tb_userEmail" runat="server"></asp:TextBox>

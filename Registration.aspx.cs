@@ -28,10 +28,12 @@ namespace SITConnect
 
         }
 
-       /* private int checkPassword(string password)
+        //Check password
+        private int checkPassword(string password)
         {
             int score = 0;
 
+            //Check password if more than 12 characters
             if (password.Length < 12)
             {
                 return 1;
@@ -40,21 +42,25 @@ namespace SITConnect
             {
                 score = 1;
             }
+            //Check if contains lowercase
             if (Regex.IsMatch(password, "[a-z]"))
             {
                 score++;
             }
-
+            
+            //Check if contains uppercase
             if (Regex.IsMatch(password, "[A-z]"))
             {
                 score++;
             }
 
+            //Check if contains numbers
             if (Regex.IsMatch(password, "[0-9]"))
             {
                 score++;
             }
 
+            //Check if contains special characters
             if (Regex.IsMatch(password, "[.$^{[(|)*+?!@]"))
             {
                 score++;
@@ -62,13 +68,13 @@ namespace SITConnect
 
 
             return score;
-        }*/
+        }
 
         protected void btn_Submit_Click(object sender, EventArgs e)
         {
             //Password validation
-            //int scores = checkPassword(tb_userPass.Text);
-            /*string status = "";
+            int scores = checkPassword(tb_userPass.Text);
+            string status = "";
             switch (scores)
             {
                 case 1:
@@ -90,12 +96,12 @@ namespace SITConnect
                     break;
             }
             lbl_pwdchecker.Text = "Status : " + status;
-            if (scores != 5)
+            if (scores < 5)
             {
                 lbl_pwdchecker.ForeColor = Color.Red;
                 return;
             }
-            lbl_pwdchecker.ForeColor = Color.Green;*/
+            lbl_pwdchecker.ForeColor = Color.Green;
 
             if (checkEmailExists(tb_userEmail.Text.ToString())){
                 lbl_email.Text = "Email already exists. Please use another email.";
