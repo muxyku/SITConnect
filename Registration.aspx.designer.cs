@@ -132,6 +132,15 @@ namespace SITConnect
         protected global::System.Web.UI.WebControls.RequiredFieldValidator RequiredFieldValidator6;
 
         /// <summary>
+        /// lbl_email control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lbl_email;
+
+        /// <summary>
         /// tb_userPass control.
         /// </summary>
         /// <remarks>

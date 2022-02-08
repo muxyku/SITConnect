@@ -96,29 +96,34 @@ namespace SITConnect
                 return;
             }
             lbl_pwdchecker.ForeColor = Color.Green;*/
-        
 
-            //Hashing and salting
-            string pwd = tb_userPass.Text.ToString().Trim();
-            //Generate random "salt"
-            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-            byte[] saltByte = new byte[8];
-            //Fills array of bytes with a cryptographically strong sequence of random values.
-            rng.GetBytes(saltByte);
-            salt = Convert.ToBase64String(saltByte);
-            SHA512Managed hashing = new SHA512Managed();
-            string pwdWithSalt = pwd + salt;
-            byte[] plainHash = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwd));
-            byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
-            finalHash = Convert.ToBase64String(hashWithSalt);
-            RijndaelManaged cipher = new RijndaelManaged();
-            cipher.GenerateKey();
-            Key = cipher.Key;
-            IV = cipher.IV;
+            if (checkEmailExists(tb_userEmail.Text.ToString())){
+                lbl_email.Text = "Email already exists. Please use another email.";
+            }
+            else {
+                //Hashing and salting
+                string pwd = tb_userPass.Text.ToString().Trim();
+                //Generate random "salt"
+                RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+                byte[] saltByte = new byte[8];
+                //Fills array of bytes with a cryptographically strong sequence of random values.
+                rng.GetBytes(saltByte);
+                salt = Convert.ToBase64String(saltByte);
+                SHA512Managed hashing = new SHA512Managed();
+                string pwdWithSalt = pwd + salt;
+                byte[] plainHash = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwd));
+                byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
+                finalHash = Convert.ToBase64String(hashWithSalt);
+                RijndaelManaged cipher = new RijndaelManaged();
+                cipher.GenerateKey();
+                Key = cipher.Key;
+                IV = cipher.IV;
+
+                createAccount();
+
+                Response.Redirect("Login.aspx");
+            }
             
-            createAccount();
-
-            Response.Redirect("Login.aspx");
         }
 
         protected void createAccount()
@@ -215,6 +220,28 @@ namespace SITConnect
             {
                 throw new Exception(ex.ToString());
             }
+        }
+
+        public bool checkEmailExists(string email)
+        {
+            SqlConnection connection = new SqlConnection(SITConnectDBConnectionString);
+            string sql = "select * FROM Account WHERE Email=@EMAIL";
+            SqlCommand command = new SqlCommand(sql, connection);
+            command.Parameters.AddWithValue("@EMAIL", email);
+
+            connection.Open();
+            using (SqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    if (reader["Id"].ToString() != null)
+                    {
+                        return true;
+                    }
+                }
+            }
+            connection.Close();
+            return false;
         }
     }
 }

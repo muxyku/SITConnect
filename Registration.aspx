@@ -60,6 +60,15 @@
                     <td >
                         <asp:TextBox id="tb_userEmail" runat="server" required="true"></asp:TextBox>
                         <asp:RequiredFieldValidator ID="RequiredFieldValidator6" runat="server" ControlToValidate="tb_userEmail" ErrorMessage="Email is required" style="color:red;"></asp:RequiredFieldValidator>
+                        
+                    </td>
+                        
+                    
+                    
+                </tr>
+                <tr>
+                    <td>
+                        <asp:Label runat="server" ID="lbl_email" ForeColor="Red"></asp:Label>
                     </td>
                 </tr>
                 <tr>
