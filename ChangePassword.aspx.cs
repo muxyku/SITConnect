@@ -71,7 +71,7 @@ namespace SITConnect
                 string pass2dbHash = getDBHash2(Session["LoggedIn"].ToString());
 
                 string currentPassword = ChangePassword1.CurrentPassword.ToString().Trim();
-                string newPassword = ChangePassword1.NewPassword.ToString().Trim();
+                string newPassword = HttpUtility.HtmlEncode(ChangePassword1.NewPassword.ToString().Trim());
                 string confirmPassword = ChangePassword1.ConfirmNewPassword.ToString().Trim();
 
                 getPasswordChangeAttempt(Session["LoggedIn"].ToString());

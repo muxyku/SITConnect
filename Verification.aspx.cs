@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
@@ -35,6 +36,7 @@ namespace SITConnect
 
         }
 
+
         protected string getOTPCode(string userid)
         {
             string otp = null;
@@ -67,14 +69,47 @@ namespace SITConnect
 
         protected void verifyOTP(object sender, EventArgs e)
         {
-            if (code.Text.ToString() == getOTPCode(Session["LoggedIn"].ToString()))
+            if (HttpUtility.HtmlEncode(code.Text.ToString()) == getOTPCode(Session["LoggedIn"].ToString()))
             {
                 Response.Redirect("AccountPage.aspx", false);
+                LoginLog();
             }
             else
             {
                 errorMsg.Text = "Verification code is wrong, please re-enter.";
             }
         }
+
+        protected void LoginLog()
+        {
+            try
+            {
+                using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
+                {
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO AuditLogs VALUES(@DateTimeLog, @UserLog, @Action)"))
+                    {
+                        using (SqlDataAdapter sda = new SqlDataAdapter())
+                        {
+                            cmd.CommandType = CommandType.Text;
+                            cmd.Parameters.AddWithValue("@DateTimeLog", DateTime.Now);
+                            cmd.Parameters.AddWithValue("@UserLog", Session["LoggedIn"].ToString());
+                            cmd.Parameters.AddWithValue("@Action", "Successfully logged into account".ToString());
+
+                            cmd.Connection = con;
+                            con.Open();
+                            cmd.ExecuteNonQuery();
+                            con.Close();
+                        }
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+        }
+
+
     }
 }

@@ -68,7 +68,6 @@ namespace SITConnect
                             Response.Redirect("Verification.aspx", false);
                             setLoginAttempt(userEmail);
                             resetLockoutTime(userEmail);
-                            LoginLog();
 
                             Random random = new Random();
                             code = random.Next(000000, 999999).ToString();
@@ -382,35 +381,6 @@ namespace SITConnect
             }
         }
 
-        protected void LoginLog()
-        {
-            try
-            {
-                using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
-                {
-                    using (SqlCommand cmd = new SqlCommand("INSERT INTO AuditLogs VALUES(@DateTimeLog, @UserLog, @Action)"))
-                    {
-                        using (SqlDataAdapter sda = new SqlDataAdapter())
-                        {
-                            cmd.CommandType = CommandType.Text;
-                            cmd.Parameters.AddWithValue("@DateTimeLog", DateTime.Now);
-                            cmd.Parameters.AddWithValue("@UserLog", tb_userEmail.Text.Trim());
-                            cmd.Parameters.AddWithValue("@Action", "Successfully logged into account".ToString());
-
-                            cmd.Connection = con;
-                            con.Open();
-                            cmd.ExecuteNonQuery();
-                            con.Close();
-                        }
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-        }
 
         protected void failedLoginLog()
         {
@@ -424,7 +394,7 @@ namespace SITConnect
                         {
                             cmd.CommandType = CommandType.Text;
                             cmd.Parameters.AddWithValue("@DateTimeLog", DateTime.Now);
-                            cmd.Parameters.AddWithValue("@UserLog", tb_userEmail.Text.Trim());
+                            cmd.Parameters.AddWithValue("@UserLog", HttpUtility.HtmlEncode(tb_userEmail.Text.Trim()));
                             cmd.Parameters.AddWithValue("@Action", "Failed to login and account has been locked for 10 minutes".ToString());
 
 
@@ -486,9 +456,9 @@ namespace SITConnect
             var mailMessage = new MailMessage
             {
                 Subject = "SIT Connect OTP",
-                Body = "Dear "+tb_userEmail.Text.ToString()+", your verification code is: " + otp 
+                Body = "Dear "+ HttpUtility.HtmlEncode(tb_userEmail.Text.ToString())+", your verification code is: " + otp 
             };
-            mailMessage.To.Add(tb_userEmail.Text.ToString());
+            mailMessage.To.Add(HttpUtility.HtmlEncode(tb_userEmail.Text.ToString()));
             mailMessage.From = new MailAddress(fromaddress);
             try
             {

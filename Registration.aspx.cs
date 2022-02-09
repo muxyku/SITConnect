@@ -144,15 +144,15 @@ namespace SITConnect
                         using (SqlDataAdapter sda = new SqlDataAdapter())
                         {
                             cmd.CommandType = CommandType.Text;
-                            cmd.Parameters.AddWithValue("@FirstName", tb_userFn.Text.Trim());
-                            cmd.Parameters.AddWithValue("@LastName", tb_userLn.Text.Trim());
-                            cmd.Parameters.AddWithValue("@CreditNum", encryptData(tb_userCreditNum.Text));
-                            cmd.Parameters.AddWithValue("@CreditDate", encryptData(tb_userCreditDate.Text));
-                            cmd.Parameters.AddWithValue("@CreditCVV", encryptData(tb_userCreditCVV.Text));
-                            cmd.Parameters.AddWithValue("@Email", tb_userEmail.Text);
+                            cmd.Parameters.AddWithValue("@FirstName", HttpUtility.HtmlEncode(tb_userFn.Text.Trim()));
+                            cmd.Parameters.AddWithValue("@LastName", HttpUtility.HtmlEncode(tb_userLn.Text.Trim()));
+                            cmd.Parameters.AddWithValue("@CreditNum", encryptData(HttpUtility.HtmlEncode(tb_userCreditNum.Text)));
+                            cmd.Parameters.AddWithValue("@CreditDate", encryptData(HttpUtility.HtmlEncode(tb_userCreditDate.Text)));
+                            cmd.Parameters.AddWithValue("@CreditCVV", encryptData(HttpUtility.HtmlEncode(tb_userCreditCVV.Text)));
+                            cmd.Parameters.AddWithValue("@Email", HttpUtility.HtmlEncode(tb_userEmail.Text));
                             cmd.Parameters.AddWithValue("@PasswordHash", finalHash);
                             cmd.Parameters.AddWithValue("@PasswordSalt", salt);
-                            cmd.Parameters.AddWithValue("@DateofBirth", tb_userDob.Text.Trim());
+                            cmd.Parameters.AddWithValue("@DateofBirth", HttpUtility.HtmlEncode(tb_userDob.Text.Trim()));
                             cmd.Parameters.AddWithValue("@Photo", photo.Text);
                             cmd.Parameters.AddWithValue("@IV", Convert.ToBase64String(IV));
                             cmd.Parameters.AddWithValue("@Key", Convert.ToBase64String(Key));
@@ -213,7 +213,7 @@ namespace SITConnect
                         {
                             cmd.CommandType = CommandType.Text;
                             cmd.Parameters.AddWithValue("@DateTimeLog", DateTime.Now );
-                            cmd.Parameters.AddWithValue("@UserLog", tb_userEmail.Text.Trim());
+                            cmd.Parameters.AddWithValue("@UserLog", HttpUtility.HtmlEncode(tb_userEmail.Text.Trim()));
                             cmd.Parameters.AddWithValue("@Action", "Registered for an account".ToString());
                             
                             cmd.Connection = con;
