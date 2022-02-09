@@ -16,6 +16,7 @@
                 CancelDestinationPageUrl = "~/AccountPage.aspx">
             </asp:ChangePassword>
 <br />
+<asp:Label ID="errorMsg" runat="server" />
 <asp:Label ID="lblMessage" runat="server" />
         </div>
     </form>

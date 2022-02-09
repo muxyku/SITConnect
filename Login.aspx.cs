@@ -47,6 +47,8 @@ namespace SITConnect
                 Int32 minutesLocked = Convert.ToInt32(ts.TotalMinutes);
                 Int32 pendingMinutes = 10 - minutesLocked;
 
+                //CHECK IF EMAIL EXIST OR NOT
+
                 try
                 {
                     if (dbSalt != null && dbSalt.Length > 0 && dbHash != null && dbHash.Length > 0)
@@ -266,29 +268,6 @@ namespace SITConnect
         }
 
 
-        /*protected string getLockoutTime(string userid)
-        {
-            string h = null;
-            SqlConnection connection = new SqlConnection(SITConnectDBConnectionString);
-            string sql = "select LockoutTime FROM Account WHERE Email=@USERID";
-            SqlCommand command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@USERID", userid);
-            try
-            {
-                connection.Open();
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    localLockTime = (DateTime)reader["LockoutTime"];
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.ToString());
-            }
-            finally { connection.Close(); }
-            return h;
-        }*/
-
         protected void resetLockoutTime(string userid)
         {
             using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
@@ -409,7 +388,6 @@ namespace SITConnect
                             cmd.Parameters.AddWithValue("@DateTimeLog", DateTime.Now);
                             cmd.Parameters.AddWithValue("@UserLog", tb_userEmail.Text.Trim());
                             cmd.Parameters.AddWithValue("@Action", "Successfully logged into account".ToString());
-
 
                             cmd.Connection = con;
                             con.Open();

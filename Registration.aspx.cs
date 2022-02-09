@@ -22,6 +22,7 @@ namespace SITConnect
         byte[] Key;
         byte[] IV;
         int loginattempt = 0;
+        int passwordchangeattempt = 0;
         string dt = new DateTime().ToString("yyy/MM/dd HH:MM:ss");
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -138,7 +139,7 @@ namespace SITConnect
             {
                 using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
                 {
-                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@FirstName, @LastName, @CreditNum, @CreditDate, @CreditCVV, @Email, @PasswordHash, @PasswordSalt, @DateofBirth, @Photo, @IV, @Key, @LoginAttempts, @LockoutTime, @PasswordHist1Hash, @PasswordHist1Salt, @PasswordHist2Hash, @PasswordHist2Salt)"))
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@FirstName, @LastName, @CreditNum, @CreditDate, @CreditCVV, @Email, @PasswordHash, @PasswordSalt, @DateofBirth, @Photo, @IV, @Key, @LoginAttempts, @LockoutTime, @PasswordHist1Hash, @PasswordHist2Hash, @PasswordChangeAttempt)"))
                     {
                         using (SqlDataAdapter sda = new SqlDataAdapter())
                         {
@@ -158,9 +159,8 @@ namespace SITConnect
                             cmd.Parameters.AddWithValue("@LoginAttempts", loginattempt);
                             cmd.Parameters.AddWithValue("@LockoutTime", dt);
                             cmd.Parameters.AddWithValue("@PasswordHist1Hash", finalHash);
-                            cmd.Parameters.AddWithValue("@PasswordHist1Salt", salt);
                             cmd.Parameters.AddWithValue("@PasswordHist2Hash", "");
-                            cmd.Parameters.AddWithValue("@PasswordHist2Salt", "");
+                            cmd.Parameters.AddWithValue("@PasswordChangeAttempt", passwordchangeattempt);
 
                             cmd.Connection = con;
                             con.Open();
@@ -215,7 +215,6 @@ namespace SITConnect
                             cmd.Parameters.AddWithValue("@UserLog", tb_userEmail.Text.Trim());
                             cmd.Parameters.AddWithValue("@Action", "Registered for an account".ToString());
                             
-
                             cmd.Connection = con;
                             con.Open();
                             cmd.ExecuteNonQuery();
