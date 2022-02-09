@@ -12,6 +12,7 @@ using System.Net;
 using System.IO;
 using System.Web.Script.Serialization;
 using System.Web.Services;
+using System.Net.Mail;
 
 namespace SITConnect
 {
@@ -24,6 +25,7 @@ namespace SITConnect
         int LoginAttempts = 0;
         DateTime lockoutTimenow = DateTime.Now;
         DateTime localLockTime;
+        public string code;
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -34,8 +36,8 @@ namespace SITConnect
         {
             if (validateCaptcha()) 
             {
-                string pwd = tb_userPass.Text.ToString().Trim();
-                string userEmail = tb_userEmail.Text.ToString().Trim();
+                string pwd = HttpUtility.HtmlEncode(tb_userPass.Text.ToString().Trim());
+                string userEmail = HttpUtility.HtmlEncode(tb_userEmail.Text.ToString().Trim());
                 SHA512Managed hashing = new SHA512Managed();
                 string dbHash = getDBHash(userEmail);
                 string dbSalt = getDBSalt(userEmail);
@@ -59,14 +61,20 @@ namespace SITConnect
                         
                         if (userHash.Equals(dbHash) && pendingMinutes <= 0)
                         {
-                            Session["LoggedIn"] = tb_userEmail.Text.Trim();
+                            Session["LoggedIn"] = HttpUtility.HtmlEncode(tb_userEmail.Text.Trim());
                             string guid = Guid.NewGuid().ToString();
                             Session["AuthToken"] = guid;
                             Response.Cookies.Add(new HttpCookie("AuthToken", guid));
-                            Response.Redirect("AccountPage.aspx", false);
+                            Response.Redirect("Verification.aspx", false);
                             setLoginAttempt(userEmail);
                             resetLockoutTime(userEmail);
                             LoginLog();
+
+                            Random random = new Random();
+                            code = random.Next(000000, 999999).ToString();
+                            createOTPcode(userEmail, code);
+
+                            sendOTPCode(code);
                         }
                         else
                         {
@@ -432,6 +440,64 @@ namespace SITConnect
             catch (Exception ex)
             {
                 throw new Exception(ex.ToString());
+            }
+        }
+
+        protected string createOTPcode(string userid, string code)
+        {
+            string otp = null;
+            SqlConnection con = new SqlConnection(SITConnectDBConnectionString);
+            string sql = "update Account set VerificationCode = @VerificationCode where Email = @USERID";
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.Parameters.AddWithValue("@VerificationCode", code);
+            cmd.Parameters.AddWithValue("@USERID", userid);
+            try
+            {
+                con.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if (reader["VerificationCode"] != null)
+                        {
+                            otp = reader["VerificationCode"].ToString();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+            finally { con.Close(); }
+            return otp;
+        }
+
+        protected string sendOTPCode(string otp)
+        {
+            string fromaddress = "SITConnect <maxsasotp@gmail.com>";
+            string str = null;
+            var smtpClient = new SmtpClient("smtp.gmail.com")
+            {
+                Port = 587,
+                Credentials = new NetworkCredential("maxsasotp@gmail.com", "maxliu123"),
+                EnableSsl = true
+            };
+            var mailMessage = new MailMessage
+            {
+                Subject = "SIT Connect OTP",
+                Body = "Dear "+tb_userEmail.Text.ToString()+", your verification code is: " + otp 
+            };
+            mailMessage.To.Add(tb_userEmail.Text.ToString());
+            mailMessage.From = new MailAddress(fromaddress);
+            try
+            {
+                smtpClient.Send(mailMessage);
+                return str;
+            }
+            catch
+            {
+                throw;
             }
         }
     }

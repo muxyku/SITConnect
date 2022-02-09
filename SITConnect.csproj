@@ -99,6 +99,7 @@
     <Content Include="ChangePassword.aspx" />
     <Content Include="Login.aspx" />
     <Content Include="Registration.aspx" />
+    <Content Include="Verification.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -151,6 +152,13 @@
     </Compile>
     <Compile Include="Registration.aspx.designer.cs">
       <DependentUpon>Registration.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Verification.aspx.cs">
+      <DependentUpon>Verification.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Verification.aspx.designer.cs">
+      <DependentUpon>Verification.aspx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

@@ -78,6 +78,18 @@ namespace SITConnect
 
                 remainder = changeAttempt % 2;
 
+                /*// u need to check whether the current password entered by user is the same as the password stored in db
+                SHA512Managed hashing = new SHA512Managed();
+                string passwordSalt = currentPassword + passdbSalt;
+                byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(passwordSalt));
+                string finalHash = Convert.ToBase64String(hashWithSalt);
+
+                if (finalHash == passdbHash)
+                {
+                    lblMessage.ForeColor = Color.Red;
+                    lblMessage.Text = "Current password does not match.";
+                }*/
+
                 //Adding new password to PasswordHist2, when password2hist is empty
                 if (pass2dbHash == "" && pass1dbHash != null)
                 {
@@ -116,7 +128,7 @@ namespace SITConnect
                                 con.Open();
                                 rowsAffected = cmd.ExecuteNonQuery();
                                 con.Close();
-                                
+
                             }
                         }
                         if (rowsAffected > 0)
@@ -134,7 +146,8 @@ namespace SITConnect
                 }
 
                 //Update password 1 if password2 has a password
-                if (pass2dbHash != "" && pass1dbHash != null && remainder == 1) {
+                if (pass2dbHash != "" && pass1dbHash != null && remainder == 1)
+                {
                     using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
                     {
                         using (SqlCommand cmd = new SqlCommand(query2))
@@ -145,7 +158,8 @@ namespace SITConnect
                                 {
                                     errorMsg.Text = "New password cannot match 2 previous passwords. Please use another password.";
                                 }
-                                else {
+                                else
+                                {
                                     changeAttempt++;
                                     updatePasswordChangeAttempt(Session["LoggedIn"].ToString(), changeAttempt);
 
@@ -176,7 +190,7 @@ namespace SITConnect
                                     con.Close();
                                 }
 
-                                
+
 
                             }
                         }
@@ -196,7 +210,7 @@ namespace SITConnect
 
                 }
 
-                if (pass2dbHash != "" && pass1dbHash != null  && remainder == 0)
+                if (pass2dbHash != "" && pass1dbHash != null && remainder == 0)
                 {
                     using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
                     {
@@ -208,7 +222,8 @@ namespace SITConnect
                                 {
                                     errorMsg.Text = "New password cannot match 2 previous passwords. Please use another password.";
                                 }
-                                else {
+                                else
+                                {
                                     changeAttempt++;
                                     updatePasswordChangeAttempt(Session["LoggedIn"].ToString(), changeAttempt);
 
@@ -253,9 +268,10 @@ namespace SITConnect
                         }
                     }
                 }
-               /* if (passdbHash == pass1dbHash && passdbHash == pass2dbHash || passdbSalt == pass1dbSalt && passdbHash == pass2dbSalt) {
-                    errorMsg.Text = "New password cannot match 2 previous passwords. Please use another password.";
-                }*/
+                //if (passdbHash == pass1dbHash && passdbHash == pass2dbHash || passdbSalt == pass1dbSalt && passdbHash == pass2dbSalt)
+                //{
+                //    errorMsg.Text = "New password cannot match 2 previous passwords. Please use another password.";
+                //}
             }
             else
             {
@@ -494,37 +510,6 @@ namespace SITConnect
             }
         }
 
-        /*public bool checkPassword(string newPassword) {
-            SHA512Managed hashing = new SHA512Managed();
-            string storedHash = getDBHash(Session["LoggedIn"].ToString());
-            string storedSalt = getDBSalt(Session["LoggedIn"].ToString());
-            
-            string pass1dbHash = getDBHash1(Session["LoggedIn"].ToString());
-
-            string pass2dbHash = getDBHash2(Session["LoggedIn"].ToString());
-           
-            if (storedSalt != null && storedSalt.Length > 0 && storedHash != null && storedHash.Length > 0)
-            {
-
-                string pwd1WithSalt = newPassword + storedSalt;
-                byte[] hash1WithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwd1WithSalt));
-                string user1Hash = Convert.ToBase64String(hash1WithSalt);
-
-                string pwd2WithSalt = newPassword + storedSalt;
-                byte[] hash2WithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwd2WithSalt));
-                string user2Hash = Convert.ToBase64String(hash2WithSalt);
-
-                if (storedHash.Equals(user1Hash) || storedHash.Equals(pass1dbHash) || storedHash.Equals(pass2dbHash))
-                {
-                    return true;
-                }
-                return false;
-            }
-
-            return false;
-
-        }*/
-
         public bool checkPasswordReuse(string newPassword)
         {
             bool reusedPassword;
@@ -580,11 +565,6 @@ namespace SITConnect
                 reusedPassword = false;
             }
             return reusedPassword;
-
-
-
-
-
 
         }
 

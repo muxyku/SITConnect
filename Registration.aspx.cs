@@ -139,7 +139,7 @@ namespace SITConnect
             {
                 using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
                 {
-                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@FirstName, @LastName, @CreditNum, @CreditDate, @CreditCVV, @Email, @PasswordHash, @PasswordSalt, @DateofBirth, @Photo, @IV, @Key, @LoginAttempts, @LockoutTime, @PasswordHist1Hash, @PasswordHist2Hash, @PasswordChangeAttempt)"))
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@FirstName, @LastName, @CreditNum, @CreditDate, @CreditCVV, @Email, @PasswordHash, @PasswordSalt, @DateofBirth, @Photo, @IV, @Key, @LoginAttempts, @LockoutTime, @PasswordHist1Hash, @PasswordHist2Hash, @PasswordChangeAttempt, @VerificationCode)"))
                     {
                         using (SqlDataAdapter sda = new SqlDataAdapter())
                         {
@@ -161,6 +161,7 @@ namespace SITConnect
                             cmd.Parameters.AddWithValue("@PasswordHist1Hash", finalHash);
                             cmd.Parameters.AddWithValue("@PasswordHist2Hash", "");
                             cmd.Parameters.AddWithValue("@PasswordChangeAttempt", passwordchangeattempt);
+                            cmd.Parameters.AddWithValue("@VerificationCode", DBNull.Value);
 
                             cmd.Connection = con;
                             con.Open();
