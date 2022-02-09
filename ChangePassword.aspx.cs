@@ -52,7 +52,8 @@ namespace SITConnect
             if (!ChangePassword1.CurrentPassword.Equals(ChangePassword1.NewPassword, StringComparison.CurrentCultureIgnoreCase))
             {
                 int rowsAffected = 0;
-                string query = "UPDATE [Account] SET [Password] = @NewPassword WHERE [Email] = @Username AND [Password] = @CurrentPassword";
+                string query = "UPDATE [Account] SET [PasswordHash] = @PasswordHash, [PasswordSalt] = @PasswordSalt WHERE Email = @USERID";
+
                 string SITConnectDBConnectionString = System.Configuration.ConfigurationManager.ConnectionStrings["SITConnectDBConnection"].ConnectionString;
 
                 using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
@@ -61,10 +62,28 @@ namespace SITConnect
                     {
                         using (SqlDataAdapter sda = new SqlDataAdapter())
                         {
-                            cmd.Parameters.AddWithValue("@Username", Session["LoggedIn"].ToString());
-                            cmd.Parameters.AddWithValue("@CurrentPassword", ChangePassword1.CurrentPassword);
-                            cmd.Parameters.AddWithValue("@NewPassword", ChangePassword1.NewPassword);
 
+                            //Hashing and salting
+                            string pwd = ChangePassword1.NewPassword.ToString();
+                            //Generate random "salt"
+                            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+                            byte[] saltByte = new byte[8];
+
+                            //Fills array of bytes with a cryptographically strong sequence of random values.
+                            rng.GetBytes(saltByte);
+                            salt = Convert.ToBase64String(saltByte);
+                            SHA512Managed hashing = new SHA512Managed();
+                            string pwdWithSalt = pwd + salt;
+                            byte[] plainHash = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwd));
+                            byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
+                            finalHash = Convert.ToBase64String(hashWithSalt);
+
+
+                            cmd.CommandType = CommandType.Text;
+                            cmd.Parameters.AddWithValue("@PasswordHash", finalHash);
+                            cmd.Parameters.AddWithValue("@PasswordSalt", salt);
+                            cmd.Parameters.AddWithValue("@USERID", Session["LoggedIn"].ToString());
+                           
                             cmd.Connection = con;
                             con.Open();
                             rowsAffected = cmd.ExecuteNonQuery();
@@ -77,8 +96,6 @@ namespace SITConnect
                         changePasswordLog();
                         lblMessage.ForeColor = Color.Green;
                         lblMessage.Text = "Password has been changed successfully.";
-                        updatePassHashSalt(Session["LoggedIn"].ToString());
-
                     }
                     else
                     {
@@ -96,49 +113,6 @@ namespace SITConnect
             e.Cancel = true;
         }
 
-        //TRY UPDATING SALT AND HASH PASSWORD
-        protected void updatePassHashSalt(string userid)
-        {
-            using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
-            {
-                string query = "UPDATE [Account] SET [PasswordHash] = @PasswordHash, [PasswordSalt] = @PasswordSalt WHERE Email = @USERID";
-
-                using (SqlCommand cmd = new SqlCommand(query))
-                {
-                    using (SqlDataAdapter sda = new SqlDataAdapter())
-                    {
-                        //Hashing and salting
-                        string pwd = ChangePassword1.NewPassword.ToString();
-                        //Generate random "salt"
-                        RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-                        byte[] saltByte = new byte[8];
-
-                        //Fills array of bytes with a cryptographically strong sequence of random values.
-                        rng.GetBytes(saltByte);
-                        salt = Convert.ToBase64String(saltByte);
-                        SHA512Managed hashing = new SHA512Managed();
-                        string pwdWithSalt = pwd + salt;
-                        byte[] plainHash = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwd));
-                        byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
-                        finalHash = Convert.ToBase64String(hashWithSalt);
-
-
-                        cmd.CommandType = CommandType.Text;
-                        cmd.Parameters.AddWithValue("@PasswordHash", finalHash);
-                        cmd.Parameters.AddWithValue("@PasswordSalt", salt);
-                        cmd.Parameters.AddWithValue("@USERID", userid);
-
-                        
-                        
-
-                        cmd.Connection = con;
-                        con.Open();
-                        cmd.ExecuteNonQuery();
-                        con.Close();
-                    }
-                }
-            }
-        }
 
         protected void changePasswordLog()
         {
@@ -171,26 +145,6 @@ namespace SITConnect
             }
         }
 
-        public bool checkPasswordExists(string email)
-        {
-            SqlConnection connection = new SqlConnection(SITConnectDBConnectionString);
-            string sql = "select * FROM Account WHERE Email=@EMAIL";
-            SqlCommand command = new SqlCommand(sql, connection);
-            command.Parameters.AddWithValue("@EMAIL", email);
-
-            connection.Open();
-            using (SqlDataReader reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    if (reader["Id"].ToString() != null)
-                    {
-                        return true;
-                    }
-                }
-            }
-            connection.Close();
-            return false;
-        }
+       
     }
 }

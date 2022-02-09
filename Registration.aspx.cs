@@ -138,7 +138,7 @@ namespace SITConnect
             {
                 using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
                 {
-                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@FirstName, @LastName, @CreditNum, @CreditDate, @CreditCVV, @Email, @Password, @PasswordHash, @PasswordSalt, @DateofBirth, @Photo, @IV, @Key, @LoginAttempts, @LockoutTime)"))
+                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@FirstName, @LastName, @CreditNum, @CreditDate, @CreditCVV, @Email, @PasswordHash, @PasswordSalt, @DateofBirth, @Photo, @IV, @Key, @LoginAttempts, @LockoutTime, @PasswordHist1Hash, @PasswordHist1Salt, @PasswordHist2Hash, @PasswordHist2Salt)"))
                     {
                         using (SqlDataAdapter sda = new SqlDataAdapter())
                         {
@@ -149,7 +149,6 @@ namespace SITConnect
                             cmd.Parameters.AddWithValue("@CreditDate", encryptData(tb_userCreditDate.Text));
                             cmd.Parameters.AddWithValue("@CreditCVV", encryptData(tb_userCreditCVV.Text));
                             cmd.Parameters.AddWithValue("@Email", tb_userEmail.Text);
-                            cmd.Parameters.AddWithValue("@Password", tb_userPass.Text.Trim());
                             cmd.Parameters.AddWithValue("@PasswordHash", finalHash);
                             cmd.Parameters.AddWithValue("@PasswordSalt", salt);
                             cmd.Parameters.AddWithValue("@DateofBirth", tb_userDob.Text.Trim());
@@ -158,6 +157,10 @@ namespace SITConnect
                             cmd.Parameters.AddWithValue("@Key", Convert.ToBase64String(Key));
                             cmd.Parameters.AddWithValue("@LoginAttempts", loginattempt);
                             cmd.Parameters.AddWithValue("@LockoutTime", dt);
+                            cmd.Parameters.AddWithValue("@PasswordHist1Hash", finalHash);
+                            cmd.Parameters.AddWithValue("@PasswordHist1Salt", salt);
+                            cmd.Parameters.AddWithValue("@PasswordHist2Hash", "");
+                            cmd.Parameters.AddWithValue("@PasswordHist2Salt", "");
 
                             cmd.Connection = con;
                             con.Open();
