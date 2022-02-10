@@ -50,44 +50,33 @@
             document.getElementById("lbl_pwdchecker").innerHTML = "Excellent!"
             document.getElementById("lbl_pwdchecker").style.color = "Green";
         }
-
-        function validateEmail() {
-            var str = document.getElementById('<%=tb_userEmail.ClientID %>/*').value;
-            if (str.search(/^w+([.-]?w+)*@w+([.-]?w+)*(.w{2,3})+$/) == -1) {
-                document.getElementById("emailMsg").innerHTML = "Not a valid email. Please enter a valid one.";
-                document.getElementById("emailMsg").style.color = "Red";
-                return ('no_email')
-
-            }
-            document.getElementById("emailMsg").innerHTML = "Valid email format!"
-            document.getElementById("emailMsg").style.color = "Green";
-        }
-
-        function validateCreditNum() {
-            var str = document.getElementById('<%=tb_userCreditNum.ClientID %>').value;
-            if (str.search(/\d{16}/) == -1) {
-                document.getElementById("numMsg").innerHTML = "Credit card number needs to be 16 digits";
-                document.getElementById("numMsg").style.color = "Red";
-                return ('no_digits')
-            }
-            document.getElementById("numMsg").innerHTML = "Valid credit card number format!"
-            document.getElementById("numMsg").style.color = "Green";
-        }
-        function validateCreditCVV() {
-            var str = document.getElementById('<%=tb_userCreditCVV.ClientID %>').value;
-                if (str.search(/\d{3}/) == -1) {
-                    document.getElementById("cvvMsg").innerHTML = "Credit card cvv needs to be 3 digits";
-                    document.getElementById("cvvMsg").style.color = "Red";
-                    return('no_digits')
-                }
-                document.getElementById("cvvMsg").innerHTML = "Valid credit card cvv format!"
-                document.getElementById("cvvMsg").style.color = "Green";
-         }
     </script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"/>
    
 </head>
 <body>
-    <h1>SIT Connect Registration</h1>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="Registration.aspx">SIT Connect</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="Registration.aspx">Registration<span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="Login.aspx">Login</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="AccountPage.aspx">Account Page</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+    <h1>Registration</h1>
     <form id="form1" runat="server">
        
         <div>
@@ -109,8 +98,10 @@
                 <tr>
                     <td class="auto-style2">Credit Card Number</td>
                     <td >
-                        <asp:TextBox id="tb_userCreditNum" onkeyup="javascript:validateCreditNum()" runat="server" required="true"  Textmode="Number"></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="RequiredFieldValidator3" runat="server" ControlToValidate="tb_userCreditNum" ErrorMessage="Credit card number is required" ValidationExpression="^[0-9]{0,16}$" style="color:red;"></asp:RequiredFieldValidator>
+                        <asp:TextBox id="tb_userCreditNum" runat="server" required="true"  Textmode="Number"></asp:TextBox>
+                        <asp:RequiredFieldValidator ID="RequiredFieldValidator3" runat="server" ControlToValidate="tb_userCreditNum" ErrorMessage="Credit card number is required" style="color:red;"></asp:RequiredFieldValidator>
+                        <asp:RegularExpressionValidator runat="server" ErrorMessage="(Please enter a valid credit number)"  ValidationExpression="^[0-9]{0,16}$" ControlToValidate="tb_userCreditCVV" style="color:red;"></asp:RegularExpressionValidator>
+
                     </td>
                     <td>
                         <asp:Label ID="numMsg" runat="server" Text="" style="color:red;"></asp:Label>
@@ -120,16 +111,19 @@
                 <tr>
                     <td class="auto-style2">Credit Card Date</td>
                     <td >
-                        <asp:TextBox id="tb_userCreditDate" runat="server" required="true"></asp:TextBox>
+                        <asp:TextBox id="tb_userCreditDate" runat="server" required="true" TextMode="Month"></asp:TextBox>
                         <asp:RequiredFieldValidator ID="RequiredFieldValidator4" runat="server" ControlToValidate="tb_userCreditDate" ErrorMessage="Credit card date is required" style="color:red;"></asp:RequiredFieldValidator>
+
                     </td>
 
                 </tr>
                  <tr>
                     <td class="auto-style2">Credit Card CVV</td>
                     <td >
-                        <asp:TextBox id="tb_userCreditCVV" onkeyup="javascript:validateCreditCVV()" runat="server" required="true"  Textmode="Number"></asp:TextBox>
+                        <asp:TextBox id="tb_userCreditCVV" runat="server" required="true"  Textmode="Number"></asp:TextBox>
                         <asp:RequiredFieldValidator ID="RequiredFieldValidator5" runat="server" ControlToValidate="tb_userCreditCVV" ErrorMessage="Credit card CVV is required" ValidationExpression="^[0-9]{0,3}$" style="color:red;"></asp:RequiredFieldValidator>
+                        <asp:RegularExpressionValidator runat="server" ErrorMessage="(Please enter a valid CVV)"  ValidationExpression="^[0-9]{0,3}$" ControlToValidate="tb_userCreditCVV" style="color:red;"></asp:RegularExpressionValidator>
+
                     </td>
                      <td>
                         <asp:Label ID="cvvMsg" runat="server" Text="" style="color:red;"></asp:Label>
@@ -139,13 +133,12 @@
                 <tr>
                     <td class="auto-style2">Email</td>
                     <td >
-                        <asp:TextBox id="tb_userEmail" runat="server" required="true" onkeyup="javascript:validateEmail()"></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="RequiredFieldValidator6" runat="server" ControlToValidate="tb_userEmail" ErrorMessage="Email is required" ValidationExpression="^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$" style="color:red;"></asp:RequiredFieldValidator>
-                        
+                        <asp:TextBox id="tb_userEmail" runat="server" required="true" TextMode="Email"></asp:TextBox>
+                        <asp:RequiredFieldValidator ID="RequiredFieldValidator6" runat="server" ControlToValidate="tb_userEmail" ErrorMessage="Email is required" style="color:red;"></asp:RequiredFieldValidator>
+                        <asp:RegularExpressionValidator runat="server" ErrorMessage="Enter a valid email address"  ValidationExpression="^[^@\s]+@[^@\s]+\.[^@\s]+$" ControlToValidate="tb_userEmail" style="color:red;"></asp:RegularExpressionValidator>
                     </td>
-                    <td>
-                        <asp:Label ID="emailMsg" runat="server" Text="" style="color:red;"></asp:Label>
-                    </td>
+                
+                    
                 </tr>
                 <tr>
                     <td>
@@ -156,7 +149,7 @@
                     <td class="auto-style2">Password</td>
                     <td >
                         <asp:TextBox id="tb_userPass" onkeyup="javascript:validate()" runat="server" TextMode="Password"></asp:TextBox>
-                        
+
                         <asp:RequiredFieldValidator ID="RequiredFieldValidator9" runat="server" ControlToValidate="tb_userPass" ErrorMessage="Password is required" style="color:red;"></asp:RequiredFieldValidator>
                         <asp:regularexpressionvalidator id="RegularExpressionValidator3" display="Dynamic" errormessage="Password must be at least 12 characters long</br> with at least one numeric character, one lowercase letter, one uppercase letter and one special character." forecolor="Red" validationexpression="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$" controltovalidate="tb_userPass" runat="server"></asp:regularexpressionvalidator>
 
@@ -173,15 +166,17 @@
                 <tr>
                     <td class="auto-style1">Date of Birth</td>
                     <td class="auto-style1" >
-                        <asp:TextBox id="tb_userDob" runat="server" type="date" required="true"></asp:TextBox>
+                        <asp:TextBox id="tb_userDob" runat="server" type="date" required="true" TextMode="Date"></asp:TextBox>
                         <asp:RequiredFieldValidator ID="RequiredFieldValidator7" runat="server" ControlToValidate="tb_userDob" ErrorMessage="Date of birth is required" style="color:red;"></asp:RequiredFieldValidator>
                     </td>
                 </tr>
                 <tr>
                     <td class="auto-style2">Photo</td>
-                    <td >
-                        <asp:TextBox id="photo" runat="server" required="true"></asp:TextBox>
-                        <asp:RequiredFieldValidator ID="RequiredFieldValidator8" runat="server" ControlToValidate="photo" ErrorMessage="Photo is required" style="color:red;"></asp:RequiredFieldValidator>
+                    <td>
+                        
+                        <asp:FileUpload ID="file_image" runat="server" class="form-control-file" />
+                        <asp:RequiredFieldValidator ID="RequiredFieldValidator8" runat="server" ControlToValidate="file_image" ErrorMessage="Photo is required" style="color:red;"></asp:RequiredFieldValidator>
+                        <asp:Label ID="imgMsg" runat="server" ForeColor="Red"></asp:Label>
                     </td>
                 </tr>
                 <tr>

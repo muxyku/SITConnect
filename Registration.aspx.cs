@@ -10,6 +10,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 using System.Drawing;
+using System.IO;
 
 namespace SITConnect
 {
@@ -21,6 +22,7 @@ namespace SITConnect
         static string salt;
         byte[] Key;
         byte[] IV;
+        byte[] Image;
         int loginattempt = 0;
         int passwordchangeattempt = 0;
         string dt = new DateTime().ToString("yyy/MM/dd HH:MM:ss");
@@ -135,47 +137,70 @@ namespace SITConnect
 
         protected void createAccount()
         {
-            try
-            {
-                using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
+            if (validateFile()) {
+                try
                 {
-                    using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@FirstName, @LastName, @CreditNum, @CreditDate, @CreditCVV, @Email, @PasswordHash, @PasswordSalt, @DateofBirth, @Photo, @IV, @Key, @LoginAttempts, @LockoutTime, @PasswordHist1Hash, @PasswordHist2Hash, @PasswordChangeAttempt, @VerificationCode)"))
+                    using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
                     {
-                        using (SqlDataAdapter sda = new SqlDataAdapter())
+                        using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@FirstName, @LastName, @CreditNum, @CreditDate, @CreditCVV, @Email, @PasswordHash, @PasswordSalt, @DateofBirth, @Photo, @IV, @Key, @LoginAttempts, @LockoutTime, @PasswordHist1Hash, @PasswordHist2Hash, @PasswordChangeAttempt, @VerificationCode)"))
                         {
-                            cmd.CommandType = CommandType.Text;
-                            cmd.Parameters.AddWithValue("@FirstName", HttpUtility.HtmlEncode(tb_userFn.Text.Trim()));
-                            cmd.Parameters.AddWithValue("@LastName", HttpUtility.HtmlEncode(tb_userLn.Text.Trim()));
-                            cmd.Parameters.AddWithValue("@CreditNum", encryptData(HttpUtility.HtmlEncode(tb_userCreditNum.Text)));
-                            cmd.Parameters.AddWithValue("@CreditDate", encryptData(HttpUtility.HtmlEncode(tb_userCreditDate.Text)));
-                            cmd.Parameters.AddWithValue("@CreditCVV", encryptData(HttpUtility.HtmlEncode(tb_userCreditCVV.Text)));
-                            cmd.Parameters.AddWithValue("@Email", HttpUtility.HtmlEncode(tb_userEmail.Text));
-                            cmd.Parameters.AddWithValue("@PasswordHash", finalHash);
-                            cmd.Parameters.AddWithValue("@PasswordSalt", salt);
-                            cmd.Parameters.AddWithValue("@DateofBirth", HttpUtility.HtmlEncode(tb_userDob.Text.Trim()));
-                            cmd.Parameters.AddWithValue("@Photo", photo.Text);
-                            cmd.Parameters.AddWithValue("@IV", Convert.ToBase64String(IV));
-                            cmd.Parameters.AddWithValue("@Key", Convert.ToBase64String(Key));
-                            cmd.Parameters.AddWithValue("@LoginAttempts", loginattempt);
-                            cmd.Parameters.AddWithValue("@LockoutTime", dt);
-                            cmd.Parameters.AddWithValue("@PasswordHist1Hash", finalHash);
-                            cmd.Parameters.AddWithValue("@PasswordHist2Hash", "");
-                            cmd.Parameters.AddWithValue("@PasswordChangeAttempt", passwordchangeattempt);
-                            cmd.Parameters.AddWithValue("@VerificationCode", DBNull.Value);
+                            using (SqlDataAdapter sda = new SqlDataAdapter())
+                            {
+                                cmd.CommandType = CommandType.Text;
+                                cmd.Parameters.AddWithValue("@FirstName", HttpUtility.HtmlEncode(tb_userFn.Text.Trim()));
+                                cmd.Parameters.AddWithValue("@LastName", HttpUtility.HtmlEncode(tb_userLn.Text.Trim()));
+                                cmd.Parameters.AddWithValue("@CreditNum", encryptData(HttpUtility.HtmlEncode(tb_userCreditNum.Text)));
+                                cmd.Parameters.AddWithValue("@CreditDate", encryptData(HttpUtility.HtmlEncode(tb_userCreditDate.Text)));
+                                cmd.Parameters.AddWithValue("@CreditCVV", encryptData(HttpUtility.HtmlEncode(tb_userCreditCVV.Text)));
+                                cmd.Parameters.AddWithValue("@Email", HttpUtility.HtmlEncode(tb_userEmail.Text));
+                                cmd.Parameters.AddWithValue("@PasswordHash", finalHash);
+                                cmd.Parameters.AddWithValue("@PasswordSalt", salt);
+                                cmd.Parameters.AddWithValue("@DateofBirth", HttpUtility.HtmlEncode(tb_userDob.Text.Trim()));
+                                cmd.Parameters.AddWithValue("@Photo", Image);
+                                cmd.Parameters.AddWithValue("@IV", Convert.ToBase64String(IV));
+                                cmd.Parameters.AddWithValue("@Key", Convert.ToBase64String(Key));
+                                cmd.Parameters.AddWithValue("@LoginAttempts", loginattempt);
+                                cmd.Parameters.AddWithValue("@LockoutTime", dt);
+                                cmd.Parameters.AddWithValue("@PasswordHist1Hash", finalHash);
+                                cmd.Parameters.AddWithValue("@PasswordHist2Hash", "");
+                                cmd.Parameters.AddWithValue("@PasswordChangeAttempt", passwordchangeattempt);
+                                cmd.Parameters.AddWithValue("@VerificationCode", DBNull.Value);
 
-                            cmd.Connection = con;
-                            con.Open();
-                            cmd.ExecuteNonQuery();
-                            con.Close();
-                            createAccountLog();
+                                cmd.Connection = con;
+                                con.Open();
+                                cmd.ExecuteNonQuery();
+                                con.Close();
+                                createAccountLog();
+                            }
                         }
                     }
-                }
 
-            }
-            catch (Exception ex)
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.ToString());
+                }
+            } 
+            
+        }
+
+        protected bool validateFile()
+        {
+            HttpPostedFile postedFile = file_image.PostedFile;
+            string fileName = Path.GetFileName(postedFile.FileName);
+            string fileExtension = Path.GetExtension(fileName);
+
+            if (fileExtension.ToLower() == ".jpg" || fileExtension.ToLower() == ".bmp" || fileExtension.ToLower() == ".gif" || fileExtension.ToLower() == ".png")
             {
-                throw new Exception(ex.ToString());
+                Stream stream = postedFile.InputStream;
+                BinaryReader binaryReader = new BinaryReader(stream);
+                Image = binaryReader.ReadBytes((int)stream.Length);
+                return true;
+            }
+            else
+            {
+                imgMsg.Text = "Please upload files that only include: jpg bmp gif png ";
+                return false;
             }
         }
 

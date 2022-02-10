@@ -33,6 +33,15 @@ namespace SITConnect
         protected global::System.Web.UI.WebControls.TextBox tb_userEmail;
 
         /// <summary>
+        /// loginEmail control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator loginEmail;
+
+        /// <summary>
         /// tb_userPass control.
         /// </summary>
         /// <remarks>
@@ -42,13 +51,13 @@ namespace SITConnect
         protected global::System.Web.UI.WebControls.TextBox tb_userPass;
 
         /// <summary>
-        /// gScore control.
+        /// loginPass control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label gScore;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator loginPass;
 
         /// <summary>
         /// errorText control.
@@ -60,22 +69,13 @@ namespace SITConnect
         protected global::System.Web.UI.WebControls.Label errorText;
 
         /// <summary>
-        /// LA control.
+        /// gScore control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label LA;
-
-        /// <summary>
-        /// addLA control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label addLA;
+        protected global::System.Web.UI.WebControls.Label gScore;
 
         /// <summary>
         /// btn_submit control.

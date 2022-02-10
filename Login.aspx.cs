@@ -49,65 +49,68 @@ namespace SITConnect
                 Int32 minutesLocked = Convert.ToInt32(ts.TotalMinutes);
                 Int32 pendingMinutes = 10 - minutesLocked;
 
-                //CHECK IF EMAIL EXIST OR NOT
-
                 try
                 {
-                    if (dbSalt != null && dbSalt.Length > 0 && dbHash != null && dbHash.Length > 0)
+                    if (checkEmailExist(userEmail))
                     {
-                        string pwdWithSalt = pwd + dbSalt;
-                        byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
-                        string userHash = Convert.ToBase64String(hashWithSalt);
-                        
-                        if (userHash.Equals(dbHash) && pendingMinutes <= 0)
+                        if (dbSalt != null && dbSalt.Length > 0 && dbHash != null && dbHash.Length > 0)
                         {
-                            Session["LoggedIn"] = HttpUtility.HtmlEncode(tb_userEmail.Text.Trim());
-                            string guid = Guid.NewGuid().ToString();
-                            Session["AuthToken"] = guid;
-                            Response.Cookies.Add(new HttpCookie("AuthToken", guid));
-                            Response.Redirect("Verification.aspx", false);
-                            setLoginAttempt(userEmail);
-                            resetLockoutTime(userEmail);
+                            string pwdWithSalt = pwd + dbSalt;
+                            byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(pwdWithSalt));
+                            string userHash = Convert.ToBase64String(hashWithSalt);
 
-                            Random random = new Random();
-                            code = random.Next(000000, 999999).ToString();
-                            createOTPcode(userEmail, code);
-
-                            sendOTPCode(code);
-                        }
-                        else
-                        {
-                            LoginAttempts++;
-                            addLA.Text = LoginAttempts.ToString();
-                            updateLoginAttempt(userEmail, LoginAttempts);
-
-                            if (LoginAttempts == 1)
+                            if (userHash.Equals(dbHash) && pendingMinutes <= 0)
                             {
-                                errorText.Text = "User email or password is incorrect! Please try again! 2 attempts remaining.";
+                                Session["LoggedIn"] = HttpUtility.HtmlEncode(tb_userEmail.Text.Trim());
+                                string guid = Guid.NewGuid().ToString();
+                                Session["AuthToken"] = guid;
+                                Response.Cookies.Add(new HttpCookie("AuthToken", guid));
+                                Response.Redirect("Verification.aspx", false);
+                                setLoginAttempt(userEmail);
+                                resetLockoutTime(userEmail);
+
+                                Random random = new Random();
+                                code = random.Next(000000, 999999).ToString();
+                                createOTPcode(userEmail, code);
+
+                                sendOTPCode(code);
                             }
-                            else if (LoginAttempts == 2)
+                            else
                             {
-                                errorText.Text = "User email or password is incorrect! Please try again! 1 attempts remaining.";
-                            }
-                            else if (pendingMinutes > 0) { 
-                                errorText.Text = " Your account has been locked! Try again later.";
+                                LoginAttempts++;
+                                updateLoginAttempt(userEmail, LoginAttempts);
+
+                                if (LoginAttempts == 1)
+                                {
+                                    errorText.Text = "User email or password is incorrect! Please try again! 2 attempts remaining.";
+                                }
+                                else if (LoginAttempts == 2)
+                                {
+                                    errorText.Text = "User email or password is incorrect! Please try again! 1 attempts remaining.";
+                                }
+                                else if (pendingMinutes > 0)
+                                {
+                                    errorText.Text = " Your account has been locked! Try again later.";
+
+                                }
+                                else if (LoginAttempts == 3)
+                                {
+                                    failedLoginLog();
+                                    setDBLockoutTime(userEmail, lockoutTimenow);
+                                    errorText.Text = "Too many tries! Your account has been locked! Try again later.";
+                                }
 
                             }
-                            else if (LoginAttempts == 3)
-                            {
-                                failedLoginLog();
-                                setDBLockoutTime(userEmail, lockoutTimenow);
-                                errorText.Text = "Too many tries! Your account has been locked! Try again later.";  
-                            }
-                            
+
+
                         }
-
-
-                        }
+                    }
                     else
                     {
-
+                        errorText.Text = "Email does not exist in our database! Please re-enter a valid email or register.";
                     }
+                    
+                  
                 }
                 catch (Exception ex)
                 {
@@ -340,8 +343,6 @@ namespace SITConnect
                         if (reader["LoginAttempts"] != DBNull.Value)
                         {
                             LoginAttempts = (int)reader["LoginAttempts"];
-                            LA.Text = reader["LoginAttempts"].ToString();
-
                         }
                        
 
@@ -469,6 +470,29 @@ namespace SITConnect
             {
                 throw;
             }
+        }
+
+        protected bool checkEmailExist(string userid) {
+            SqlConnection con = new SqlConnection(SITConnectDBConnectionString);
+            string sql = "select * from Account where Email = @USERID";
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.Parameters.AddWithValue("@USERID",userid);
+
+            con.Open();
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    if (reader["Email"].ToString() != null) {
+                        return true;
+                    }
+                    
+                }
+            }
+            con.Close();
+            return false;
+
+
         }
     }
 }
