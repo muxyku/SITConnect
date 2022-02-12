@@ -98,9 +98,9 @@
                 <tr>
                     <td class="auto-style2">Credit Card Number</td>
                     <td >
-                        <asp:TextBox id="tb_userCreditNum" runat="server" required="true"  Textmode="Number"></asp:TextBox>
+                        <asp:TextBox id="tb_userCreditNum" runat="server" required="true" MaxLength="16"></asp:TextBox>
                         <asp:RequiredFieldValidator ID="RequiredFieldValidator3" runat="server" ControlToValidate="tb_userCreditNum" ErrorMessage="Credit card number is required" style="color:red;"></asp:RequiredFieldValidator>
-                        <asp:RegularExpressionValidator runat="server" ErrorMessage="(Please enter a valid credit number)"  ValidationExpression="^[0-9]{0,16}$" ControlToValidate="tb_userCreditCVV" style="color:red;"></asp:RegularExpressionValidator>
+                        <asp:RegularExpressionValidator runat="server" ErrorMessage="(Please enter a valid credit number)"  ValidationExpression="^4[0-9]{12}(?:[0-9]{3})?$" ControlToValidate="tb_userCreditNum" style="color:red;"></asp:RegularExpressionValidator>
 
                     </td>
                     <td>
@@ -111,8 +111,9 @@
                 <tr>
                     <td class="auto-style2">Credit Card Date</td>
                     <td >
-                        <asp:TextBox id="tb_userCreditDate" runat="server" required="true" TextMode="Month"></asp:TextBox>
+                        <asp:TextBox id="tb_userCreditDate" runat="server" required="true" MaxLength="4"></asp:TextBox>
                         <asp:RequiredFieldValidator ID="RequiredFieldValidator4" runat="server" ControlToValidate="tb_userCreditDate" ErrorMessage="Credit card date is required" style="color:red;"></asp:RequiredFieldValidator>
+                        <asp:RegularExpressionValidator runat="server" ErrorMessage="(Please enter a valid expiry date)"  ValidationExpression="\d{4}" ControlToValidate="tb_userCreditDate" style="color:red;"></asp:RegularExpressionValidator>
 
                     </td>
 
@@ -120,9 +121,9 @@
                  <tr>
                     <td class="auto-style2">Credit Card CVV</td>
                     <td >
-                        <asp:TextBox id="tb_userCreditCVV" runat="server" required="true"  Textmode="Number"></asp:TextBox>
+                        <asp:TextBox id="tb_userCreditCVV" runat="server" required="true" TextMode="Number" MaxLength="3"></asp:TextBox>
                         <asp:RequiredFieldValidator ID="RequiredFieldValidator5" runat="server" ControlToValidate="tb_userCreditCVV" ErrorMessage="Credit card CVV is required" ValidationExpression="^[0-9]{0,3}$" style="color:red;"></asp:RequiredFieldValidator>
-                        <asp:RegularExpressionValidator runat="server" ErrorMessage="(Please enter a valid CVV)"  ValidationExpression="^[0-9]{0,3}$" ControlToValidate="tb_userCreditCVV" style="color:red;"></asp:RegularExpressionValidator>
+                        <asp:RegularExpressionValidator runat="server" ErrorMessage="(Please enter a valid CVV)"  ValidationExpression="\d{3}" ControlToValidate="tb_userCreditCVV" style="color:red;"></asp:RegularExpressionValidator>
 
                     </td>
                      <td>
@@ -166,19 +167,18 @@
                 <tr>
                     <td class="auto-style1">Date of Birth</td>
                     <td class="auto-style1" >
-                        <asp:TextBox id="tb_userDob" runat="server" type="date" required="true" TextMode="Date"></asp:TextBox>
+                        <asp:TextBox id="tb_userDob" runat="server" type="date" required="true"></asp:TextBox>
                         <asp:RequiredFieldValidator ID="RequiredFieldValidator7" runat="server" ControlToValidate="tb_userDob" ErrorMessage="Date of birth is required" style="color:red;"></asp:RequiredFieldValidator>
                     </td>
                 </tr>
+
                 <tr>
-                    <td class="auto-style2">Photo</td>
-                    <td>
-                        
-                        <asp:FileUpload ID="file_image" runat="server" class="form-control-file" />
-                        <asp:RequiredFieldValidator ID="RequiredFieldValidator8" runat="server" ControlToValidate="file_image" ErrorMessage="Photo is required" style="color:red;"></asp:RequiredFieldValidator>
-                        <asp:Label ID="imgMsg" runat="server" ForeColor="Red"></asp:Label>
+                    <td class="auto-style1">File upload</td>
+                    <td class="auto-style1" >
+                        <asp:TextBox id="TextBox1" runat="server" type="file"></asp:TextBox>
                     </td>
                 </tr>
+               
                 <tr>
                     <td class="auto-style2"><asp:Button Text="Submit" ID="register_btn" OnClick="btn_Submit_Click" runat="server"/></td>
                 </tr>

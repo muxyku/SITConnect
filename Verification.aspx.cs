@@ -110,7 +110,7 @@ namespace SITConnect
             }
         }
 
-        protected void cancelBtn() {
+        protected void cancelBtn(object sender, EventArgs e) {
             Session.Clear();
             Session.Abandon();
             Session.RemoveAll();

@@ -213,31 +213,13 @@ namespace SITConnect
         protected global::System.Web.UI.WebControls.RequiredFieldValidator RequiredFieldValidator7;
 
         /// <summary>
-        /// file_image control.
+        /// TextBox1 control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.FileUpload file_image;
-
-        /// <summary>
-        /// RequiredFieldValidator8 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.RequiredFieldValidator RequiredFieldValidator8;
-
-        /// <summary>
-        /// imgMsg control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label imgMsg;
+        protected global::System.Web.UI.WebControls.TextBox TextBox1;
 
         /// <summary>
         /// register_btn control.

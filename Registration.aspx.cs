@@ -137,12 +137,12 @@ namespace SITConnect
 
         protected void createAccount()
         {
-            if (validateFile()) {
+           
                 try
                 {
                     using (SqlConnection con = new SqlConnection(SITConnectDBConnectionString))
                     {
-                        using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@FirstName, @LastName, @CreditNum, @CreditDate, @CreditCVV, @Email, @PasswordHash, @PasswordSalt, @DateofBirth, @Photo, @IV, @Key, @LoginAttempts, @LockoutTime, @PasswordHist1Hash, @PasswordHist2Hash, @PasswordChangeAttempt, @VerificationCode)"))
+                        using (SqlCommand cmd = new SqlCommand("INSERT INTO Account VALUES(@FirstName, @LastName, @CreditNum, @CreditDate, @CreditCVV, @Email, @PasswordHash, @PasswordSalt, @DateofBirth, @IV, @Key, @LoginAttempts, @LockoutTime, @PasswordHist1Hash, @PasswordHist2Hash, @PasswordChangeAttempt, @VerificationCode)"))
                         {
                             using (SqlDataAdapter sda = new SqlDataAdapter())
                             {
@@ -156,7 +156,7 @@ namespace SITConnect
                                 cmd.Parameters.AddWithValue("@PasswordHash", finalHash);
                                 cmd.Parameters.AddWithValue("@PasswordSalt", salt);
                                 cmd.Parameters.AddWithValue("@DateofBirth", HttpUtility.HtmlEncode(tb_userDob.Text.Trim()));
-                                cmd.Parameters.AddWithValue("@Photo", Image);
+                                //cmd.Parameters.AddWithValue("@Photo", Image);
                                 cmd.Parameters.AddWithValue("@IV", Convert.ToBase64String(IV));
                                 cmd.Parameters.AddWithValue("@Key", Convert.ToBase64String(Key));
                                 cmd.Parameters.AddWithValue("@LoginAttempts", loginattempt);
@@ -180,29 +180,29 @@ namespace SITConnect
                 {
                     throw new Exception(ex.ToString());
                 }
-            } 
+           
             
         }
 
-        protected bool validateFile()
-        {
-            HttpPostedFile postedFile = file_image.PostedFile;
-            string fileName = Path.GetFileName(postedFile.FileName);
-            string fileExtension = Path.GetExtension(fileName);
+        //protected bool validateFile()
+        //{
+        //    HttpPostedFile postedFile = file_image.PostedFile;
+        //    string fileName = Path.GetFileName(postedFile.FileName);
+        //    string fileExtension = Path.GetExtension(fileName);
 
-            if (fileExtension.ToLower() == ".jpg" || fileExtension.ToLower() == ".bmp" || fileExtension.ToLower() == ".gif" || fileExtension.ToLower() == ".png")
-            {
-                Stream stream = postedFile.InputStream;
-                BinaryReader binaryReader = new BinaryReader(stream);
-                Image = binaryReader.ReadBytes((int)stream.Length);
-                return true;
-            }
-            else
-            {
-                imgMsg.Text = "Please upload files that only include: jpg bmp gif png ";
-                return false;
-            }
-        }
+        //    if (fileExtension.ToLower() == ".jpg" || fileExtension.ToLower() == ".bmp" || fileExtension.ToLower() == ".gif" || fileExtension.ToLower() == ".png")
+        //    {
+        //        Stream stream = postedFile.InputStream;
+        //        BinaryReader binaryReader = new BinaryReader(stream);
+        //        Image = binaryReader.ReadBytes((int)stream.Length);
+        //        return true;
+        //    }
+        //    else
+        //    {
+        //        imageError.Text = "Please upload files that only include: jpg bmp gif png ";
+        //        return false;
+        //    }
+        //}
 
         protected byte[] encryptData(string data)
         {

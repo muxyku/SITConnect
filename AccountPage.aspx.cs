@@ -77,7 +77,7 @@ namespace SITConnect
                         }
                         if (reader["FirstName"] != DBNull.Value && reader["LastName"] != DBNull.Value)
                         {
-                            userName.Text = reader["FirstName"].ToString() + reader["LastName"].ToString();
+                            userName.Text = reader["FirstName"].ToString() + " " + reader["LastName"].ToString();
                         }
                         if (reader["DateofBirth"] != DBNull.Value)
                         {

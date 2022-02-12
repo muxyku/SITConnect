@@ -17,7 +17,7 @@
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
+          <li class="nav-item">
             <a class="nav-link" href="Registration.aspx">Registration</a>
           </li>
           <li class="nav-item">
@@ -46,7 +46,7 @@
             <asp:Button id="btnLogout" runat="Server" OnClick="Logout" Text="Logout"/>
     </div>
     </form>
-    <a href="ChangePassword.aspx">Change password</a>
+    <button><a href="ChangePassword.aspx">Change Password</a></button>
 
 </body>
 </html>

@@ -78,7 +78,7 @@ namespace SITConnect
 
                 remainder = changeAttempt % 2;
 
-                /*// u need to check whether the current password entered by user is the same as the password stored in db
+                /*
                 SHA512Managed hashing = new SHA512Managed();
                 string passwordSalt = currentPassword + passdbSalt;
                 byte[] hashWithSalt = hashing.ComputeHash(Encoding.UTF8.GetBytes(passwordSalt));
