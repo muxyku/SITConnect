@@ -194,7 +194,7 @@ namespace SITConnect
 
             string captchaResponse = Request.Form["g-recaptcha-response"];
 
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://www.google.com/recaptcha/api/siteverify?secret=6LdnEVYeAAAAABfWohDTrWO3uJnT2tPqoPbtG2J_ &response=" + captchaResponse);
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create("https://www.google.com/recaptcha/api/siteverify?secret=placeholder &response=" + captchaResponse);
 
             try
             {
@@ -446,12 +446,12 @@ namespace SITConnect
 
         protected string sendOTPCode(string otp)
         {
-            string fromaddress = "SITConnect <maxsasotp@gmail.com>";
+            string fromaddress = "SITConnect <emailplaceholder>";
             string str = null;
             var smtpClient = new SmtpClient("smtp.gmail.com")
             {
                 Port = 587,
-                Credentials = new NetworkCredential("maxsasotp@gmail.com", "maxliu123"),
+                Credentials = new NetworkCredential("email placeholder", "passwordplaceholder"),
                 EnableSsl = true
             };
             var mailMessage = new MailMessage
